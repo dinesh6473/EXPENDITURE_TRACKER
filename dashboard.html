@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – ExpenseIQ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- ======= APP NAVIGATION ======= -->
+    <nav class="app-nav">
+        <div class="container">
+            <a href="dashboard.html" class="navbar-logo">
+                <span class="brand-text">ExpenseIQ</span>
+            </a>
+            <div class="app-nav-links">
+                <a href="dashboard.html" class="active">📊 <span class="nav-text">Dashboard</span></a>
+                <a href="add-expense.html">➕ <span class="nav-text">Add Expense</span></a>
+                <a href="transactions.html">📜 <span class="nav-text">Transactions</span></a>
+                <a href="savings.html">💰 <span class="nav-text">Savings</span></a>
+                <a href="profile.html">👤 <span class="nav-text">Profile</span></a>
+                <a href="#" class="logout-link" id="logoutBtn">🚪 <span class="nav-text">Logout</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======= PAGE CONTENT ======= -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Page Loader -->
+            <div class="page-loader" id="pageLoader">
+                <div class="spinner" style="width:40px;height:40px;border-width:3px;"></div>
+            </div>
+
+            <!-- Main Content (hidden until loaded) -->
+            <div id="dashboardContent" style="display:none;">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>Welcome back, <span id="userName">Student</span> 👋</h1>
+                    <p>Here's your financial overview for this month.</p>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">💳</div>
+                        <div class="stat-info">
+                            <h4>Monthly Allowance</h4>
+                            <div class="stat-value" id="statAllowance">₹0</div>
+                            <div class="stat-label">Total budget this month</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">🛒</div>
+                        <div class="stat-info">
+                            <h4>Total Spent</h4>
+                            <div class="stat-value" id="statSpent">₹0</div>
+                            <div class="stat-label">Expenses this month</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">💵</div>
+                        <div class="stat-info">
+                            <h4>Remaining Balance</h4>
+                            <div class="stat-value" id="statRemaining">₹0</div>
+                            <div class="stat-label">Available to spend</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow">🏦</div>
+                        <div class="stat-info">
+                            <h4>Savings</h4>
+                            <div class="stat-value" id="statSavings">₹0</div>
+                            <div class="stat-label">Set aside this month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spending Progress -->
+                <div class="content-full">
+                    <div class="card card-elevated" style="padding:24px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <h4>Budget Usage</h4>
+                            <span id="budgetPercent"
+                                style="font-weight:600;font-size:0.95rem;color:var(--primary);">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="budgetProgressBar" style="width:0%;"></div>
+                        </div>
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--gray-400);margin-top:4px;">
+                            <span>₹0 spent</span>
+                            <span id="budgetTotal">of ₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two-column layout -->
+                <div class="content-grid">
+                    <!-- Category Breakdown -->
+                    <div class="card card-elevated">
+                        <h4 style="margin-bottom:20px;">Spending by Category</h4>
+                        <div class="category-list" id="categoryBreakdown">
+                            <div class="empty-state" style="padding:24px;">
+                                <div class="empty-icon">📂</div>
+                                <p>No expenses yet this month</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spending Summary -->
+                    <div class="card card-elevated">
+                        <h4 style="margin-bottom:20px;">Monthly Summary</h4>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div
+                                style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--gray-100);">
+                                <span style="color:var(--gray-500);font-size:0.9rem;">Total Monthly Money</span>
+                                <span style="font-weight:600;" id="summaryAllowance">₹0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--gray-100);">
+                                <span style="color:var(--gray-500);font-size:0.9rem;">Total Expenses</span>
+                                <span style="font-weight:600;color:var(--danger);" id="summarySpent">-₹0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--gray-100);">
+                                <span style="color:var(--gray-500);font-size:0.9rem;">Savings Set Aside</span>
+                                <span style="font-weight:600;color:var(--accent-dark);" id="summarySavings">-₹0</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
+                                <span style="color:var(--gray-700);font-weight:600;">Remaining Balance</span>
+                                <span style="font-weight:700;font-size:1.2rem;color:var(--primary);"
+                                    id="summaryRemaining">₹0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--accent-light);border-radius:var(--radius);">
+                                <span style="color:var(--accent-dark);font-size:0.9rem;">Percentage Used</span>
+                                <span style="font-weight:700;color:var(--accent-dark);"
+                                    id="summaryPercentUsed">0%</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--primary-lighter);border-radius:var(--radius);">
+                                <span style="color:var(--primary);font-size:0.9rem;">Percentage Remaining</span>
+                                <span style="font-weight:700;color:var(--primary);"
+                                    id="summaryPercentRemaining">100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="content-full">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Recent Transactions</h3>
+                            <a href="transactions.html" class="btn btn-ghost btn-sm">View All →</a>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th style="text-align:right;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTransactions">
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="empty-state" style="padding:24px;">
+                                            <div class="empty-icon">📝</div>
+                                            <p>No transactions yet. <a href="add-expense.html"
+                                                    style="color:var(--primary);font-weight:600;">Add your first expense
+                                                    →</a></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="content-full">
+                    <h4 style="margin-bottom:16px;">Quick Actions</h4>
+                    <div class="quick-actions">
+                        <a href="add-expense.html" class="btn btn-primary">➕ Add Expense</a>
+                        <a href="savings.html" class="btn btn-accent">💰 Add Savings</a>
+                        <a href="profile.html" class="btn btn-outline">👤 Edit Profile</a>
+                        <a href="transactions.html" class="btn btn-ghost">📜 View All Transactions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Auth guard
+            const authed = await requireAuth();
+            if (!authed) return;
+
+            try {
+                // Load all data in parallel
+                const [profile, wallet, recentExpenses, categoryData] = await Promise.all([
+                    getUserProfile(),
+                    getWalletSummary(),
+                    getExpenses(5),
+                    getExpensesByCategory()
+                ]);
+
+                if (!profile || !wallet) {
+                    document.getElementById('pageLoader').innerHTML = '<p style="color:var(--danger);text-align:center;">Profile not found. Please contact support or <a href="profile.html" style="color:var(--primary);">set up your profile</a>.</p>';
+                    return;
+                }
+
+                // Update user name
+                document.getElementById('userName').textContent = profile.name.split(' ')[0];
+
+                // Update stat cards
+                document.getElementById('statAllowance').textContent = '₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
+                document.getElementById('statSpent').textContent = '₹' + wallet.totalSpent.toLocaleString('en-IN');
+                document.getElementById('statRemaining').textContent = '₹' + wallet.remaining.toLocaleString('en-IN');
+                document.getElementById('statSavings').textContent = '₹' + wallet.totalSavings.toLocaleString('en-IN');
+
+                // Budget progress
+                const spentAndSavedPercent = wallet.monthlyAllowance > 0
+                    ? Math.min(100, Math.round(((wallet.totalSpent + wallet.totalSavings) / wallet.monthlyAllowance) * 100))
+                    : 0;
+                document.getElementById('budgetPercent').textContent = spentAndSavedPercent + '%';
+                const bar = document.getElementById('budgetProgressBar');
+                bar.style.width = spentAndSavedPercent + '%';
+                if (spentAndSavedPercent > 90) bar.classList.add('red');
+                else if (spentAndSavedPercent > 70) bar.classList.add('yellow');
+                else bar.classList.add('green');
+                document.getElementById('budgetTotal').textContent = 'of ₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
+
+                // Summary section
+                document.getElementById('summaryAllowance').textContent = '₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
+                document.getElementById('summarySpent').textContent = '-₹' + wallet.totalSpent.toLocaleString('en-IN');
+                document.getElementById('summarySavings').textContent = '-₹' + wallet.totalSavings.toLocaleString('en-IN');
+                document.getElementById('summaryRemaining').textContent = '₹' + wallet.remaining.toLocaleString('en-IN');
+
+                const percentUsed = wallet.monthlyAllowance > 0
+                    ? Math.round((wallet.totalSpent / wallet.monthlyAllowance) * 100)
+                    : 0;
+                document.getElementById('summaryPercentUsed').textContent = percentUsed + '%';
+                document.getElementById('summaryPercentRemaining').textContent = (100 - percentUsed) + '%';
+
+                // Category breakdown
+                const catContainer = document.getElementById('categoryBreakdown');
+                const catEntries = Object.entries(categoryData);
+                if (catEntries.length > 0) {
+                    const maxAmount = Math.max(...catEntries.map(([, v]) => v));
+                    catContainer.innerHTML = catEntries.map(([name, amount]) => {
+                        const percent = Math.round((amount / maxAmount) * 100);
+                        return `
+              <div class="category-item">
+                <div class="cat-icon">${getCategoryIcon(name)}</div>
+                <div class="cat-info">
+                  <div class="cat-name">${name}</div>
+                  <div class="cat-bar"><div class="cat-bar-fill" style="width:${percent}%"></div></div>
+                </div>
+                <div class="cat-amount">₹${amount.toLocaleString('en-IN')}</div>
+              </div>
+            `;
+                    }).join('');
+                }
+
+                // Recent transactions
+                const tbody = document.getElementById('recentTransactions');
+                if (recentExpenses.length > 0) {
+                    tbody.innerHTML = recentExpenses.map(exp => `
+            <tr>
+              <td>${new Date(exp.expense_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
+              <td><span class="category-badge">${getCategoryIcon(exp.category_name)} ${exp.category_name}</span></td>
+              <td>${exp.description || '—'}</td>
+              <td style="text-align:right;" class="amount-negative">-₹${parseFloat(exp.amount).toLocaleString('en-IN')}</td>
+            </tr>
+          `).join('');
+                }
+
+                // Show content, hide loader
+                document.getElementById('pageLoader').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                document.getElementById('pageLoader').innerHTML = '<p style="color:var(--danger);">Error loading dashboard. Please refresh.</p>';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await logout();
+        });
+
+        // Category icon helper
+        function getCategoryIcon(name) {
+            const icons = {
+                'Food': '🍔', 'Travel': '🚌', 'Books': '📚',
+                'Entertainment': '🎮', 'Hostel / Rent': '🏠',
+                'Recharge': '📱', 'Stationary': '✏️'
+            };
+            return icons[name] || '📦';
+        }
+    </script>
+</body>
+
+</html>

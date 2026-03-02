@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile – ExpenseIQ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- ======= APP NAVIGATION ======= -->
+    <nav class="app-nav">
+        <div class="container">
+            <a href="dashboard.html" class="navbar-logo">
+                <span class="brand-text">ExpenseIQ</span>
+            </a>
+            <div class="app-nav-links">
+                <a href="dashboard.html">📊 <span class="nav-text">Dashboard</span></a>
+                <a href="add-expense.html">➕ <span class="nav-text">Add Expense</span></a>
+                <a href="transactions.html">📜 <span class="nav-text">Transactions</span></a>
+                <a href="savings.html">💰 <span class="nav-text">Savings</span></a>
+                <a href="profile.html" class="active">👤 <span class="nav-text">Profile</span></a>
+                <a href="#" class="logout-link" id="logoutBtn">🚪 <span class="nav-text">Logout</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======= PAGE CONTENT ======= -->
+    <main class="page-content">
+        <div class="container" style="max-width:600px;">
+            <div class="page-header">
+                <h1>Profile</h1>
+                <p>Manage your account details and monthly allowance.</p>
+            </div>
+
+            <!-- Page Loader -->
+            <div class="page-loader" id="pageLoader">
+                <div class="spinner" style="width:40px;height:40px;border-width:3px;"></div>
+            </div>
+
+            <div id="profileContent" style="display:none;">
+                <!-- Profile Avatar & Info -->
+                <div class="card card-elevated" style="text-align:center;padding:40px 24px;margin-bottom:24px;">
+                    <div
+                        style="width:80px;height:80px;border-radius:50%;background:var(--primary-lighter);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;">
+                        👤
+                    </div>
+                    <h3 id="profileName">Student</h3>
+                    <p style="margin-top:4px;" id="profileEmail">student@email.com</p>
+                    <p style="margin-top:8px;font-size:0.85rem;color:var(--gray-400);" id="profileJoined">Member since —
+                    </p>
+                </div>
+
+                <!-- Edit Profile Form -->
+                <div class="card card-elevated" style="margin-bottom:24px;">
+                    <h4 style="margin-bottom:20px;">Edit Profile</h4>
+
+                    <div class="alert alert-error" id="profileError">
+                        <span>⚠️</span>
+                        <span id="profileErrorText"></span>
+                    </div>
+
+                    <div class="alert alert-success" id="profileSuccess">
+                        <span>✅</span>
+                        <span id="profileSuccessText"></span>
+                    </div>
+
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control" disabled
+                                style="background:var(--gray-50);color:var(--gray-400);">
+                            <span class="form-hint">Email cannot be changed.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="monthlyAllowance">Monthly Allowance (₹)</label>
+                            <input type="number" id="monthlyAllowance" class="form-control" required min="1" step="1">
+                            <span class="form-hint">Updating this will change your wallet balance for the current
+                                month.</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full" id="saveProfileBtn">
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="card" style="border-color:var(--danger);border-style:dashed;">
+                    <h4 style="color:var(--danger);margin-bottom:12px;">⚠️ Danger Zone</h4>
+                    <p style="font-size:0.88rem;margin-bottom:16px;">Logging out will end your session. You can log back
+                        in anytime.</p>
+                    <button class="btn btn-danger" id="logoutBtn2">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authed = await requireAuth();
+            if (!authed) return;
+
+            try {
+                const profile = await getUserProfile();
+                if (!profile) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Populate fields
+                document.getElementById('profileName').textContent = profile.name;
+                document.getElementById('profileEmail').textContent = profile.email;
+                document.getElementById('profileJoined').textContent = 'Member since ' +
+                    new Date(profile.created_at).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
+                document.getElementById('name').value = profile.name;
+                document.getElementById('email').value = profile.email;
+                document.getElementById('monthlyAllowance').value = profile.monthly_allowance;
+
+                document.getElementById('pageLoader').style.display = 'none';
+                document.getElementById('profileContent').style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('pageLoader').innerHTML = '<p style="color:var(--danger);">Failed to load profile.</p>';
+            }
+        });
+
+        // Save profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlerts();
+
+            const name = document.getElementById('name').value.trim();
+            const monthlyAllowance = document.getElementById('monthlyAllowance').value;
+
+            if (!name || !monthlyAllowance) {
+                showError('Please fill in all fields.');
+                return;
+            }
+
+            if (parseFloat(monthlyAllowance) <= 0) {
+                showError('Monthly allowance must be a positive number.');
+                return;
+            }
+
+            const btn = document.getElementById('saveProfileBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Saving...';
+
+            try {
+                await updateProfile({
+                    name,
+                    monthly_allowance: parseFloat(monthlyAllowance)
+                });
+                showSuccess('Profile updated successfully!');
+                document.getElementById('profileName').textContent = name;
+            } catch (err) {
+                showError(err.message || 'Failed to update profile.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        });
+
+        // Logout handlers
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await logout();
+        });
+
+        document.getElementById('logoutBtn2').addEventListener('click', async () => {
+            await logout();
+        });
+
+        function showError(msg) {
+            document.getElementById('profileErrorText').textContent = msg;
+            document.getElementById('profileError').classList.add('show');
+        }
+
+        function showSuccess(msg) {
+            document.getElementById('profileSuccessText').textContent = msg;
+            document.getElementById('profileSuccess').classList.add('show');
+        }
+
+        function hideAlerts() {
+            document.getElementById('profileError').classList.remove('show');
+            document.getElementById('profileSuccess').classList.remove('show');
+        }
+    </script>
+</body>
+
+</html>

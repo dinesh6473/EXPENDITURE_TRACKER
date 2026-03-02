@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create your ExpenseIQ account and start managing your monthly allowance.">
+    <title>Sign Up – ExpenseIQ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="auth-page">
+    <!-- ======= HEADER ======= -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-logo">
+                <span style="font-size:1.1rem;">←</span>
+                <span class="brand-text">ExpenseIQ</span>
+            </a>
+            <div class="navbar-links">
+                <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======= SIGN UP FORM ======= -->
+    <div class="auth-container">
+        <div class="auth-card" style="max-width:480px;">
+            <h2>Create Your Account</h2>
+            <p class="auth-subtitle">Start managing your monthly allowance smarter</p>
+
+            <div class="alert alert-error" id="signupError">
+                <span>⚠️</span>
+                <span id="signupErrorText"></span>
+            </div>
+
+            <div class="alert alert-success" id="signupSuccess">
+                <span>✅</span>
+                <span id="signupSuccessText"></span>
+            </div>
+
+            <form id="signupForm" autocomplete="on">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" class="form-control" placeholder="Enter your name" required
+                        autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required
+                        autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control"
+                        placeholder="Create a password (min 6 characters)" required autocomplete="new-password"
+                        minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control"
+                        placeholder="Re-enter your password" required autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="monthlyAllowance">Monthly Money Received (₹)</label>
+                    <input type="number" id="monthlyAllowance" class="form-control"
+                        placeholder="Enter your monthly allowance" required min="1" step="1">
+                    <span class="form-hint">This amount will be used to create your wallet balance</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg" id="signupBtn">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="login.html">Login</a></p>
+            </div>
+
+            <div
+                style="margin-top:16px; padding:14px 18px; background:var(--primary-lighter); border-radius:var(--radius); font-size:0.85rem; color:var(--gray-600);">
+                💡 Your monthly allowance will automatically become your wallet balance. You can track expenses and
+                monitor savings from your dashboard.
+            </div>
+        </div>
+    </div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Redirect if already logged in
+        document.addEventListener('DOMContentLoaded', async () => {
+            await redirectIfLoggedIn();
+        });
+
+        const signupForm = document.getElementById('signupForm');
+        const signupBtn = document.getElementById('signupBtn');
+        const signupError = document.getElementById('signupError');
+        const signupErrorText = document.getElementById('signupErrorText');
+        const signupSuccess = document.getElementById('signupSuccess');
+        const signupSuccessText = document.getElementById('signupSuccessText');
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            signupError.classList.remove('show');
+            signupSuccess.classList.remove('show');
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const monthlyAllowance = document.getElementById('monthlyAllowance').value;
+
+            // Validation
+            if (!name || !email || !password || !confirmPassword || !monthlyAllowance) {
+                showError('Please fill in all fields.');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters long.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match.');
+                return;
+            }
+
+            if (parseFloat(monthlyAllowance) <= 0) {
+                showError('Monthly allowance must be a positive number.');
+                return;
+            }
+
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = '<div class="spinner"></div> Creating Account...';
+
+            try {
+                await signUp(email, password, name, parseFloat(monthlyAllowance));
+                // Supabase may require email confirmation. If auto-confirm is on, redirect.
+                const session = await getSession();
+                if (session) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Hide form, show verification message
+                    signupForm.style.display = 'none';
+                    document.querySelector('.auth-footer').style.display = 'none';
+                    document.querySelector('.auth-card > div:last-child').style.display = 'none';
+                    document.querySelector('.auth-subtitle').style.display = 'none';
+                    document.querySelector('.auth-card h2').textContent = '📧 Verify Your Email';
+
+                    signupSuccessText.innerHTML = 'Account created successfully!<br><br>We\'ve sent a verification link to <strong>' + email + '</strong>.<br>Please check your inbox and verify your email, then <a href="login.html" style="color:var(--primary);font-weight:700;text-decoration:underline;">click here to login</a>.';
+                    signupSuccess.classList.add('show');
+                }
+            } catch (err) {
+                showError(err.message || 'Something went wrong. Please try again.');
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+            }
+        });
+
+        function showError(message) {
+            signupErrorText.textContent = message;
+            signupError.classList.add('show');
+        }
+    </script>
+</body>
+
+</html>

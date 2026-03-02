@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings – ExpenseIQ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- ======= APP NAVIGATION ======= -->
+    <nav class="app-nav">
+        <div class="container">
+            <a href="dashboard.html" class="navbar-logo">
+                <span class="brand-text">ExpenseIQ</span>
+            </a>
+            <div class="app-nav-links">
+                <a href="dashboard.html">📊 <span class="nav-text">Dashboard</span></a>
+                <a href="add-expense.html">➕ <span class="nav-text">Add Expense</span></a>
+                <a href="transactions.html">📜 <span class="nav-text">Transactions</span></a>
+                <a href="savings.html" class="active">💰 <span class="nav-text">Savings</span></a>
+                <a href="profile.html">👤 <span class="nav-text">Profile</span></a>
+                <a href="#" class="logout-link" id="logoutBtn">🚪 <span class="nav-text">Logout</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======= PAGE CONTENT ======= -->
+    <main class="page-content">
+        <div class="container" style="max-width:800px;">
+            <div class="page-header">
+                <h1>Savings Tracker</h1>
+                <p>Set aside money from your wallet and build a savings habit.</p>
+            </div>
+
+            <!-- Page Loader -->
+            <div class="page-loader" id="pageLoader">
+                <div class="spinner" style="width:40px;height:40px;border-width:3px;"></div>
+            </div>
+
+            <div id="savingsContent" style="display:none;">
+                <!-- Savings Summary Card -->
+                <div class="savings-card" style="margin-bottom:28px;">
+                    <h3>Total Savings</h3>
+                    <div class="savings-amount" id="totalSavings">₹0</div>
+                    <div class="savings-label" id="savingsContext">Keep saving to reach your goals!</div>
+                </div>
+
+                <!-- Wallet vs Savings Comparison -->
+                <div class="content-grid" style="margin-bottom:28px;">
+                    <div class="card card-elevated">
+                        <h4 style="margin-bottom:16px;">Wallet Breakdown</h4>
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div
+                                style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);">
+                                <span style="color:var(--gray-500);font-size:0.9rem;">Monthly Allowance</span>
+                                <span style="font-weight:600;" id="wAllowance">₹0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);">
+                                <span style="color:var(--gray-500);font-size:0.9rem;">Total Spent</span>
+                                <span style="font-weight:600;color:var(--danger);" id="wSpent">₹0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);">
+                                <span style="color:var(--gray-500);font-size:0.9rem;">Savings Set Aside</span>
+                                <span style="font-weight:600;color:var(--accent-dark);" id="wSavings">₹0</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;">
+                                <span style="font-weight:600;color:var(--gray-700);">Available Balance</span>
+                                <span style="font-weight:700;font-size:1.15rem;color:var(--primary);"
+                                    id="wRemaining">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Savings Form -->
+                    <div class="card card-elevated">
+                        <h4 style="margin-bottom:16px;">Transfer to Savings</h4>
+                        <p style="font-size:0.88rem;margin-bottom:20px;">Move money from your wallet balance into your
+                            savings.</p>
+
+                        <div class="alert alert-error" id="savingsError">
+                            <span>⚠️</span>
+                            <span id="savingsErrorText"></span>
+                        </div>
+
+                        <div class="alert alert-success" id="savingsSuccess">
+                            <span>✅</span>
+                            <span id="savingsSuccessText"></span>
+                        </div>
+
+                        <form id="savingsForm">
+                            <div class="form-group">
+                                <label for="savingsAmount">Amount (₹)</label>
+                                <input type="number" id="savingsAmount" class="form-control"
+                                    placeholder="Enter amount to save" required min="1" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="savingsDesc">Description (Optional)</label>
+                                <input type="text" id="savingsDesc" class="form-control"
+                                    placeholder="e.g., Emergency fund, Weekend trip">
+                            </div>
+                            <button type="submit" class="btn btn-accent btn-full" id="addSavingsBtn">
+                                💰 Add to Savings
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Savings History -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Savings History</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th style="text-align:right;">Amount</th>
+                                <th style="width:50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="savingsHistory">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let walletData = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authed = await requireAuth();
+            if (!authed) return;
+            await loadSavingsPage();
+        });
+
+        async function loadSavingsPage() {
+            try {
+                const [wallet, savings] = await Promise.all([
+                    getWalletSummary(),
+                    getSavings()
+                ]);
+
+                walletData = wallet;
+
+                // Update savings summary
+                document.getElementById('totalSavings').textContent = '₹' + wallet.totalSavings.toLocaleString('en-IN');
+
+                const savingsPercent = wallet.monthlyAllowance > 0
+                    ? Math.round((wallet.totalSavings / wallet.monthlyAllowance) * 100) : 0;
+                document.getElementById('savingsContext').textContent =
+                    `You've saved ${savingsPercent}% of your monthly allowance!`;
+
+                // Wallet breakdown
+                document.getElementById('wAllowance').textContent = '₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
+                document.getElementById('wSpent').textContent = '₹' + wallet.totalSpent.toLocaleString('en-IN');
+                document.getElementById('wSavings').textContent = '₹' + wallet.totalSavings.toLocaleString('en-IN');
+                document.getElementById('wRemaining').textContent = '₹' + wallet.remaining.toLocaleString('en-IN');
+
+                // Savings history
+                const tbody = document.getElementById('savingsHistory');
+                if (savings.length === 0) {
+                    tbody.innerHTML = `
+            <tr><td colspan="4">
+              <div class="empty-state" style="padding:24px;">
+                <div class="empty-icon">🏦</div>
+                <p>No savings yet. Start saving today!</p>
+              </div>
+            </td></tr>`;
+                } else {
+                    tbody.innerHTML = savings.map(s => `
+            <tr>
+              <td>${new Date(s.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+              <td>${s.description || 'Savings deposit'}</td>
+              <td style="text-align:right;" class="amount-positive">+₹${parseFloat(s.amount).toLocaleString('en-IN')}</td>
+              <td>
+                <button class="btn-delete" onclick="handleDeleteSaving('${s.id}')" title="Delete">🗑️</button>
+              </td>
+            </tr>
+          `).join('');
+                }
+
+                document.getElementById('pageLoader').style.display = 'none';
+                document.getElementById('savingsContent').style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('pageLoader').innerHTML = '<p style="color:var(--danger);">Error loading savings data.</p>';
+            }
+        }
+
+        // Add savings form
+        document.getElementById('savingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlerts();
+
+            const amount = parseFloat(document.getElementById('savingsAmount').value);
+            const desc = document.getElementById('savingsDesc').value.trim();
+
+            if (!amount || amount <= 0) {
+                showError('Please enter a valid amount.');
+                return;
+            }
+
+            if (walletData && amount > walletData.remaining) {
+                showError('Insufficient balance. You only have ₹' + walletData.remaining.toLocaleString('en-IN') + ' available.');
+                return;
+            }
+
+            const btn = document.getElementById('addSavingsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Adding...';
+
+            try {
+                await addSaving(amount, desc || 'Savings deposit');
+                showSuccess('₹' + amount.toLocaleString('en-IN') + ' added to savings!');
+                document.getElementById('savingsForm').reset();
+                await loadSavingsPage();
+            } catch (err) {
+                showError(err.message || 'Failed to add savings.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '💰 Add to Savings';
+        });
+
+        async function handleDeleteSaving(id) {
+            if (!confirm('Are you sure you want to remove this savings entry?')) return;
+            try {
+                await deleteSaving(id);
+                await loadSavingsPage();
+            } catch (err) {
+                alert('Failed to delete: ' + err.message);
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await logout();
+        });
+
+        function showError(msg) {
+            document.getElementById('savingsErrorText').textContent = msg;
+            document.getElementById('savingsError').classList.add('show');
+        }
+
+        function showSuccess(msg) {
+            document.getElementById('savingsSuccessText').textContent = msg;
+            document.getElementById('savingsSuccess').classList.add('show');
+        }
+
+        function hideAlerts() {
+            document.getElementById('savingsError').classList.remove('show');
+            document.getElementById('savingsSuccess').classList.remove('show');
+        }
+    </script>
+</body>
+
+</html>
