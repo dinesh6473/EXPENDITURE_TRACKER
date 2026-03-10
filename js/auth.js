@@ -15,13 +15,20 @@ async function getSession() {
 }
 
 // Sign Up
-async function signUp(email, password, name, monthlyAllowance) {
+async function signUp(email, password, name, monthlyAllowance, age, gender, currentlyPursuing, pursuingDetail) {
     // Create auth user — profile is auto-created via database trigger
     const { data, error } = await _supabase.auth.signUp({
         email,
         password,
         options: {
-            data: { name, monthly_allowance: monthlyAllowance }
+            data: {
+                name,
+                monthly_allowance: monthlyAllowance,
+                age: age,
+                gender: gender,
+                currently_pursuing: currentlyPursuing,
+                pursuing_detail: pursuingDetail
+            }
         }
     });
 

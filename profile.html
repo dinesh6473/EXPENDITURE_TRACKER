@@ -10,29 +10,102 @@
 </head>
 
 <body>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ======= APP NAVIGATION ======= -->
-    <nav class="app-nav">
+    <nav class="app-nav" id="appNav">
         <div class="container">
+            <!-- Hamburger -->
+            <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Brand (visible only when expanded) -->
             <a href="dashboard.html" class="navbar-logo">
                 <span class="brand-text">ExpenseIQ</span>
             </a>
+
             <div class="app-nav-links">
-                <a href="dashboard.html">📊 <span class="nav-text">Dashboard</span></a>
-                <a href="add-expense.html">➕ <span class="nav-text">Add Expense</span></a>
-                <a href="transactions.html">📜 <span class="nav-text">Transactions</span></a>
-                <a href="savings.html">💰 <span class="nav-text">Savings</span></a>
-                <a href="profile.html" class="active">👤 <span class="nav-text">Profile</span></a>
-                <a href="#" class="logout-link" id="logoutBtn">🚪 <span class="nav-text">Logout</span></a>
+                <a href="dashboard.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="analytics.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg></span>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                <a href="savings.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg></span>
+                    <span class="nav-text">Savings</span>
+                </a>
+                <a href="history.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></span>
+                    <span class="nav-text">History</span>
+                </a>
+                <a href="profile.html" class="active">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span>
+                    <span class="nav-text">Profile</span>
+                </a>
+                <div style="flex:1;"></div>
+                <a href="#" class="logout-link" id="logoutBtn">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg></span>
+                    <span class="nav-text">Logout</span>
+                </a>
             </div>
         </div>
     </nav>
+
+    <!-- ======= TOP USER BAR ======= -->
+    <header class="top-user-bar">
+        <div class="top-user-info">
+            <a href="profile.html" title="Go to Profile">
+                <div class="top-user-avatar" id="userAvatar">D</div>
+            </a>
+            <span class="top-user-name" id="topUserName">Student</span>
+        </div>
+    </header>
 
     <!-- ======= PAGE CONTENT ======= -->
     <main class="page-content">
         <div class="container" style="max-width:600px;">
             <div class="page-header">
                 <h1>Profile</h1>
-                <p>Manage your account details and monthly allowance.</p>
+                <p>Manage your account details and wallet.</p>
             </div>
 
             <!-- Page Loader -->
@@ -45,7 +118,11 @@
                 <div class="card card-elevated" style="text-align:center;padding:40px 24px;margin-bottom:24px;">
                     <div
                         style="width:80px;height:80px;border-radius:50%;background:var(--primary-lighter);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;">
-                        👤
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
                     </div>
                     <h3 id="profileName">Student</h3>
                     <p style="margin-top:4px;" id="profileEmail">student@email.com</p>
@@ -58,12 +135,23 @@
                     <h4 style="margin-bottom:20px;">Edit Profile</h4>
 
                     <div class="alert alert-error" id="profileError">
-                        <span>⚠️</span>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg></span>
                         <span id="profileErrorText"></span>
                     </div>
 
                     <div class="alert alert-success" id="profileSuccess">
-                        <span>✅</span>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg></span>
                         <span id="profileSuccessText"></span>
                     </div>
 
@@ -81,10 +169,43 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="monthlyAllowance">Monthly Allowance (₹)</label>
-                            <input type="number" id="monthlyAllowance" class="form-control" required min="1" step="1">
-                            <span class="form-hint">Updating this will change your wallet balance for the current
-                                month.</span>
+                            <label for="profileAge">Age</label>
+                            <input type="number" id="profileAge" class="form-control" required min="5" max="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profileGender">Gender</label>
+                            <select id="profileGender" class="form-control" required>
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Non-binary">Non-binary</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profilePursuing">Currently Pursuing</label>
+                            <select id="profilePursuing" class="form-control" required>
+                                <option value="">Select your level of study</option>
+                                <option value="Primary School (1-5)">Primary School (1-5)</option>
+                                <option value="Middle School (6-8)">Middle School (6-8)</option>
+                                <option value="High School (9-10)">High School (9-10)</option>
+                                <option value="Higher Secondary (11-12)">Higher Secondary (11-12)</option>
+                                <option value="Diploma">Diploma</option>
+                                <option value="Undergraduate (UG)">Undergraduate (UG)</option>
+                                <option value="Postgraduate (PG)">Postgraduate (PG)</option>
+                                <option value="M.Phil">M.Phil</option>
+                                <option value="Ph.D / Doctorate">Ph.D / Doctorate</option>
+                                <option value="Post-Doctoral">Post-Doctoral</option>
+                                <option value="Professional Course">Professional Course (CA, CS, Law, etc.)</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Cascading sub-detail fields appear here -->
+                        <div id="profilePursuingSubFields"
+                            style="border-left:3px solid var(--primary-lighter);padding-left:16px;margin-bottom:4px;">
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-full" id="saveProfileBtn">
@@ -93,12 +214,73 @@
                     </form>
                 </div>
 
-                <!-- Danger Zone -->
+                <!-- Add to Wallet -->
+                <div class="card card-elevated" style="margin-bottom:24px;">
+                    <h4 style="margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg>
+                        Add Money to Wallet
+                    </h4>
+                    <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:18px;">Top up your wallet balance
+                        with additional funds.</p>
+
+                    <div class="alert alert-error" id="walletTopupError">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg></span>
+                        <span id="walletTopupErrorText"></span>
+                    </div>
+                    <div class="alert alert-success" id="walletTopupSuccess">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg></span>
+                        <span id="walletTopupSuccessText"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="topupAmount">Amount to Add (₹)</label>
+                        <input type="number" id="topupAmount" class="form-control" min="1" step="1"
+                            placeholder="e.g. 500">
+                    </div>
+                    <button class="btn btn-primary btn-full" id="addToWalletBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right:6px;vertical-align:middle;">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Add to Wallet
+                    </button>
+                </div>
                 <div class="card" style="border-color:var(--danger);border-style:dashed;">
-                    <h4 style="color:var(--danger);margin-bottom:12px;">⚠️ Danger Zone</h4>
+                    <h4 style="color:var(--danger);margin-bottom:12px;display:flex;align-items:center;gap:8px;"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg> Danger Zone</h4>
                     <p style="font-size:0.88rem;margin-bottom:16px;">Logging out will end your session. You can log back
                         in anytime.</p>
-                    <button class="btn btn-danger" id="logoutBtn2">🚪 Logout</button>
+                    <button class="btn btn-danger" id="logoutBtn2"><svg xmlns="http://www.w3.org/2000/svg" width="15"
+                            height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right:6px;vertical-align:middle;">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg> Logout</button>
                 </div>
             </div>
         </div>
@@ -107,6 +289,8 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/pursuing-details.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const authed = await requireAuth();
@@ -127,7 +311,17 @@
 
                 document.getElementById('name').value = profile.name;
                 document.getElementById('email').value = profile.email;
-                document.getElementById('monthlyAllowance').value = profile.monthly_allowance;
+                document.getElementById('profileAge').value = profile.age || '';
+                document.getElementById('profileGender').value = profile.gender || '';
+                document.getElementById('profilePursuing').value = profile.currently_pursuing || '';
+
+                // Initialize cascading sub-fields and pre-populate if data exists
+                initPursuingDetails('profilePursuing', 'profilePursuingSubFields', 'profile');
+                if (profile.currently_pursuing && profile.pursuing_detail) {
+                    const existingValues = parsePursuingDetail(profile.pursuing_detail, profile.currently_pursuing);
+                    const container = document.getElementById('profilePursuingSubFields');
+                    renderPursuingSubFields(profile.currently_pursuing, container, 'profile', existingValues);
+                }
 
                 document.getElementById('pageLoader').style.display = 'none';
                 document.getElementById('profileContent').style.display = 'block';
@@ -143,17 +337,26 @@
             hideAlerts();
 
             const name = document.getElementById('name').value.trim();
-            const monthlyAllowance = document.getElementById('monthlyAllowance').value;
+            const age = document.getElementById('profileAge').value;
+            const gender = document.getElementById('profileGender').value;
+            const currentlyPursuing = document.getElementById('profilePursuing').value;
 
-            if (!name || !monthlyAllowance) {
-                showError('Please fill in all fields.');
+            if (!name) {
+                showError('Please enter your name.');
                 return;
             }
 
-            if (parseFloat(monthlyAllowance) <= 0) {
-                showError('Monthly allowance must be a positive number.');
+            if (age && (parseInt(age) < 5 || parseInt(age) > 100)) {
+                showError('Please enter a valid age between 5 and 100.');
                 return;
             }
+
+            if (currentlyPursuing && !validatePursuingDetail(currentlyPursuing, 'profile')) {
+                showError('Please fill in all the details for your current level of study.');
+                return;
+            }
+
+            const pursuingDetail = currentlyPursuing ? collectPursuingDetail(currentlyPursuing, 'profile') : null;
 
             const btn = document.getElementById('saveProfileBtn');
             btn.disabled = true;
@@ -162,7 +365,10 @@
             try {
                 await updateProfile({
                     name,
-                    monthly_allowance: parseFloat(monthlyAllowance)
+                    age: age ? parseInt(age) : null,
+                    gender: gender || null,
+                    currently_pursuing: currentlyPursuing || null,
+                    pursuing_detail: pursuingDetail
                 });
                 showSuccess('Profile updated successfully!');
                 document.getElementById('profileName').textContent = name;
@@ -174,15 +380,47 @@
             btn.textContent = 'Save Changes';
         });
 
-        // Logout handlers
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await logout();
+        // ── Add to Wallet ────────────────────────────────────────────
+        document.getElementById('addToWalletBtn').addEventListener('click', async () => {
+            // Hide previous alerts
+            document.getElementById('walletTopupError').classList.remove('show');
+            document.getElementById('walletTopupSuccess').classList.remove('show');
+
+            const amount = parseFloat(document.getElementById('topupAmount').value);
+            if (!amount || amount <= 0) {
+                document.getElementById('walletTopupErrorText').textContent = 'Please enter a valid amount greater than 0.';
+                document.getElementById('walletTopupError').classList.add('show');
+                return;
+            }
+
+            const btn = document.getElementById('addToWalletBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Adding...';
+
+            try {
+                // Get current allowance then add top-up on top
+                const profile = await getUserProfile();
+                const currentAllowance = parseFloat(profile.monthly_allowance) || 0;
+                const newTotal = currentAllowance + amount;
+
+                await updateProfile({ monthly_allowance: newTotal });
+
+                // Log the top-up transaction for history
+                await addWalletTransaction(amount, 'Wallet top-up');
+
+                document.getElementById('walletTopupSuccessText').textContent =
+                    `₹${amount.toLocaleString('en-IN')} added! New wallet balance: ₹${newTotal.toLocaleString('en-IN')}`;
+                document.getElementById('walletTopupSuccess').classList.add('show');
+                document.getElementById('topupAmount').value = '';
+            } catch (err) {
+                document.getElementById('walletTopupErrorText').textContent = err.message || 'Failed to add funds.';
+                document.getElementById('walletTopupError').classList.add('show');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add to Wallet`;
         });
 
-        document.getElementById('logoutBtn2').addEventListener('click', async () => {
-            await logout();
-        });
 
         function showError(msg) {
             document.getElementById('profileErrorText').textContent = msg;

@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics – ExpenseIQ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ── Analytics-specific styles ──────────────────────────── */
+        .analytics-hero {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            border-radius: var(--radius-lg);
+            padding: 32px 28px;
+            color: white;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .analytics-hero h2 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 4px;
+        }
+
+        .analytics-hero p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.9rem;
+        }
+
+        .analytics-hero-icon {
+            font-size: 3.5rem;
+            opacity: 0.9;
+        }
+
+        /* ── Period Tabs ─────────────────────────────────────────── */
+        .period-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: var(--gray-100);
+            padding: 6px;
+            border-radius: var(--radius-full);
+            width: fit-content;
+        }
+
+        .period-tab {
+            padding: 8px 20px;
+            border-radius: var(--radius-full);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            transition: all 0.2s ease;
+        }
+
+        .period-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+        }
+
+        .period-tab:hover:not(.active) {
+            color: var(--gray-700);
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ── Compare button beside period tabs ─────────────────────── */
+        .compare-btn-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            border: 1.5px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .compare-btn-tab:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .compare-btn-tab.active-cmp {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ── Date Navigator ──────────────────────────────────────── */
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .date-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--gray-600);
+        }
+
+        .date-nav-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-lighter);
+        }
+
+        .date-nav-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            min-width: 180px;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── Summary Chips ───────────────────────────────────────── */
+        .summary-chips {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .summary-chip {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .summary-chip:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .chip-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-400);
+            margin-bottom: 8px;
+        }
+
+        .chip-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            letter-spacing: -0.03em;
+        }
+
+        .chip-sub {
+            font-size: 0.78rem;
+            color: var(--gray-400);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .chip-value.positive {
+            color: var(--accent-dark);
+        }
+
+        .chip-value.negative {
+            color: var(--danger);
+        }
+
+        .chip-value.neutral {
+            color: var(--primary);
+        }
+
+        /* ── Charts Grid ─────────────────────────────────────────── */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .chart-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-card h4 .chart-icon {
+            font-size: 1.1rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .chart-wrapper.pie-wrap {
+            max-width: 260px;
+            margin: 0 auto;
+        }
+
+        /* ── Legend ──────────────────────────────────────────────── */
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-name {
+            flex: 1;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .legend-amount {
+            font-weight: 700;
+            color: var(--gray-800);
+            font-size: 0.82rem;
+        }
+
+        /* ── Empty State ─────────────────────────────────────────── */
+        .empty-analytics {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--gray-400);
+        }
+
+        .empty-analytics .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-analytics p {
+            font-size: 0.96rem;
+        }
+
+        /* ── Responsive ──────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-chips {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .summary-chips {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-hero h2 {
+                font-size: 1.4rem;
+            }
+
+            .period-tabs {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+        }
+
+        /* ── Comparison Modal ─────────────────────────────────────── */
+        .cmp-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        .cmp-modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .cmp-modal {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+            padding: 32px;
+            transform: translateY(24px);
+            transition: transform 0.28s cubic-bezier(.22, .68, 0, 1.2);
+        }
+
+        .cmp-modal-overlay.show .cmp-modal {
+            transform: translateY(0);
+        }
+
+        .cmp-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .cmp-modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            letter-spacing: -0.03em;
+        }
+
+        .cmp-close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .cmp-close-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-800);
+        }
+
+        /* ── Compare mode tabs ── */
+        .cmp-type-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--gray-100);
+            padding: 5px;
+            border-radius: var(--radius-full);
+        }
+
+        .cmp-type-tab {
+            flex: 1;
+            padding: 8px;
+            border-radius: var(--radius-full);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            transition: all 0.2s;
+        }
+
+        .cmp-type-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+        }
+
+        /* ── Period picker rows ── */
+        .cmp-pickers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .cmp-picker-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--gray-400);
+            margin-bottom: 6px;
+        }
+
+        .cmp-picker-group .period-badge {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .cmp-picker-group input[type="date"],
+        .cmp-picker-group input[type="month"],
+        .cmp-picker-group input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            color: var(--gray-800);
+            background: white;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .cmp-picker-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .cmp-run-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
+        }
+
+        .cmp-run-btn:hover {
+            background: var(--primary-dark, #3730A3);
+        }
+
+        /* ── Compare button in hero ── */
+        .compare-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-full);
+            color: white;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .compare-btn:hover {
+            background: rgba(255, 255, 255, 0.28);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .compare-btn.active-cmp {
+            background: white;
+            color: var(--primary);
+            border-color: white;
+        }
+
+        /* ── Comparison results section ── */
+        #cmpResultSection {
+            margin-top: 28px;
+        }
+
+        .cmp-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cmp-header h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--gray-800);
+            letter-spacing: -0.03em;
+        }
+
+        .cmp-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .cmp-badge-a {
+            background: rgba(79, 70, 229, 0.1);
+            color: #4F46E5;
+        }
+
+        .cmp-badge-b {
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+        }
+
+        .cmp-badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* summary stat comparison */
+        .cmp-summary-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .cmp-stat-card {
+            background: white;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cmp-stat-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-400);
+            margin-bottom: 6px;
+        }
+
+        .cmp-stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .cmp-stat-sub {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            margin-top: 4px;
+        }
+
+        .cmp-stat-card.period-a {
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+
+        .cmp-stat-card.period-b {
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .cmp-stat-card.period-a .cmp-stat-value {
+            color: #4F46E5;
+        }
+
+        .cmp-stat-card.period-b .cmp-stat-value {
+            color: #059669;
+        }
+
+        /* worm chart card */
+        .cmp-chart-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .cmp-chart-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* dual pie grid */
+        .cmp-pie-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .cmp-pie-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: var(--gray-500);
+        }
+
+        .cmp-close-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-full);
+            background: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cmp-close-result:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        @media (max-width: 600px) {
+            .cmp-pickers {
+                grid-template-columns: 1fr;
+            }
+
+            .cmp-summary-row {
+                grid-template-columns: 1fr;
+            }
+
+            .cmp-pie-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ======= APP NAVIGATION ======= -->
+    <nav class="app-nav" id="appNav">
+        <div class="container">
+            <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <a href="dashboard.html" class="navbar-logo">
+                <span class="brand-text">ExpenseIQ</span>
+            </a>
+
+            <div class="app-nav-links">
+                <a href="dashboard.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="analytics.html" class="active">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg></span>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                <a href="savings.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg></span>
+                    <span class="nav-text">Savings</span>
+                </a>
+                <a href="history.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></span>
+                    <span class="nav-text">History</span>
+                </a>
+                <a href="profile.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span>
+                    <span class="nav-text">Profile</span>
+                </a>
+                <div style="flex:1;"></div>
+                <a href="#" class="logout-link" id="logoutBtn">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg></span>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======= TOP USER BAR ======= -->
+    <header class="top-user-bar">
+        <div class="top-user-info">
+            <a href="profile.html" title="Go to Profile">
+                <div class="top-user-avatar" id="userAvatar">U</div>
+            </a>
+            <span class="top-user-name" id="topUserName">Student</span>
+        </div>
+    </header>
+
+    <!-- ======= PAGE CONTENT ======= -->
+    <main class="page-content">
+        <div class="container">
+            <!-- Page Loader -->
+            <div class="page-loader" id="pageLoader">
+                <div class="spinner" style="width:40px;height:40px;border-width:3px;"></div>
+            </div>
+
+            <div id="analyticsContent" style="display:none;">
+
+                <!-- Hero Banner -->
+                <div class="analytics-hero">
+                    <div>
+                        <h2>Spending Analytics</h2>
+                        <p>Understand where your money goes, and take control.</p>
+                    </div>
+                    <div class="analytics-hero-icon"><svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"
+                            viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg></div>
+                </div>
+
+                <!-- Period Tabs -->
+                <div class="period-tabs" id="periodTabs">
+                    <button class="period-tab" data-period="day">Day</button>
+                    <button class="period-tab" data-period="week">Week</button>
+                    <button class="period-tab active" data-period="month">Month</button>
+                    <button class="period-tab" data-period="year">Year</button>
+                </div>
+
+                <!-- Date Navigator -->
+                <div class="date-nav">
+                    <button class="date-nav-btn" id="prevBtn">◀</button>
+                    <span class="date-nav-label" id="dateNavLabel"></span>
+                    <button class="date-nav-btn" id="nextBtn">▶</button>
+                </div>
+
+                <!-- Summary Chips -->
+                <div class="summary-chips">
+                    <div class="summary-chip">
+                        <div class="chip-label">Total Spent</div>
+                        <div class="chip-value negative" id="chipTotal">₹0</div>
+                        <div class="chip-sub" id="chipTxCount">0 transactions</div>
+                    </div>
+                    <div class="summary-chip">
+                        <div class="chip-label">Daily Average</div>
+                        <div class="chip-value neutral" id="chipAvg">₹0</div>
+                        <div class="chip-sub">per day in period</div>
+                    </div>
+                    <div class="summary-chip">
+                        <div class="chip-label">Top Category</div>
+                        <div class="chip-value" id="chipTopCat" style="font-size:1.1rem;">—</div>
+                        <div class="chip-sub" id="chipTopCatAmt">No data</div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <!-- Pie Chart Card -->
+                    <div class="chart-card">
+                        <h4><span class="chart-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 2a10 10 0 0 1 10 10" />
+                                    <path d="M12 12l-6 3.46" />
+                                </svg></span> Spending by Category</h4>
+                        <div id="pieEmpty" class="empty-analytics" style="display:none;">
+                            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                </svg></div>
+                            <p>No expenses found for this period.</p>
+                        </div>
+                        <div id="pieChartSection">
+                            <div class="chart-wrapper pie-wrap">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                            <div class="pie-legend" id="pieLegend"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bar / Line Chart Card -->
+                    <div class="chart-card">
+                        <h4><span class="chart-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                </svg></span> Spending Over Time</h4>
+                        <div id="barEmpty" class="empty-analytics" style="display:none;">
+                            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="20" x2="18" y2="10" />
+                                    <line x1="12" y1="20" x2="12" y2="4" />
+                                    <line x1="6" y1="20" x2="6" y2="14" />
+                                </svg></div>
+                            <p>No data to compare for this period.</p>
+                        </div>
+                        <div id="barChartSection">
+                            <div class="chart-wrapper">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spacer -->
+                <div style="height:40px;"></div>
+
+                <!-- ======= COMPARISON RESULTS ======= -->
+                <div id="cmpResultSection" style="display:none;">
+
+                    <!-- header -->
+                    <div class="cmp-header">
+                        <h3>Comparison Results</h3>
+                        <span class="cmp-badge cmp-badge-a" id="cmpBadgeA">
+                            <span class="cmp-badge-dot" style="background:#4F46E5;"></span>
+                            <span id="cmpLabelA">Period A</span>
+                        </span>
+                        <span class="cmp-badge cmp-badge-b" id="cmpBadgeB">
+                            <span class="cmp-badge-dot" style="background:#10B981;"></span>
+                            <span id="cmpLabelB">Period B</span>
+                        </span>
+                        <button class="cmp-close-result" id="cmpClearBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+
+                    <!-- stat summaries -->
+                    <div class="cmp-summary-row">
+                        <div class="cmp-stat-card period-a">
+                            <div class="cmp-stat-label" id="cmpStatLabelA">Period A</div>
+                            <div class="cmp-stat-value" id="cmpStatTotalA">₹0</div>
+                            <div class="cmp-stat-sub" id="cmpStatTxA">0 transactions</div>
+                        </div>
+                        <div class="cmp-stat-card period-b">
+                            <div class="cmp-stat-label" id="cmpStatLabelB">Period B</div>
+                            <div class="cmp-stat-value" id="cmpStatTotalB">₹0</div>
+                            <div class="cmp-stat-sub" id="cmpStatTxB">0 transactions</div>
+                        </div>
+                    </div>
+
+                    <!-- Worm / Line chart (hidden for day vs day) -->
+                    <div class="cmp-chart-card" id="cmpWormCard">
+                        <h4>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                            Spending Over Time
+                        </h4>
+                        <div class="chart-wrapper">
+                            <canvas id="cmpWormChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Dual Pie charts -->
+                    <div class="cmp-chart-card">
+                        <h4>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 2a10 10 0 0 1 10 10" />
+                                <path d="M12 12l-6 3.46" />
+                            </svg>
+                            Category Breakdown
+                        </h4>
+                        <div class="cmp-pie-grid">
+                            <div>
+                                <div class="cmp-pie-label" id="cmpPieLabelA" style="color:#4F46E5;">Period A</div>
+                                <div class="chart-wrapper pie-wrap"><canvas id="cmpPieChartA"></canvas></div>
+                                <div class="pie-legend" id="cmpPieLegendA" style="margin-top:10px;"></div>
+                            </div>
+                            <div>
+                                <div class="cmp-pie-label" id="cmpPieLabelB" style="color:#059669;">Period B</div>
+                                <div class="chart-wrapper pie-wrap"><canvas id="cmpPieChartB"></canvas></div>
+                                <div class="pie-legend" id="cmpPieLegendB" style="margin-top:10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="height:40px;"></div>
+                </div><!-- /cmpResultSection -->
+
+            </div><!-- /analyticsContent -->
+        </div>
+    </main>
+
+    <!-- ======= COMPARISON MODAL ======= -->
+    <div class="cmp-modal-overlay" id="cmpModalOverlay">
+        <div class="cmp-modal">
+            <div class="cmp-modal-header">
+                <h3>Compare Expenses</h3>
+                <button class="cmp-close-btn" id="cmpCloseModalBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Type tabs -->
+            <div class="cmp-type-tabs" id="cmpTypeTabs">
+                <button class="cmp-type-tab active" data-ctype="day">Day vs Day</button>
+                <button class="cmp-type-tab" data-ctype="month">Month vs Month</button>
+                <button class="cmp-type-tab" data-ctype="year">Year vs Year</button>
+            </div>
+
+            <!-- Day pickers -->
+            <div class="cmp-pickers" id="cmpDayPickers">
+                <div class="cmp-picker-group">
+                    <label><span class="period-badge" style="background:#4F46E5;"></span>Period A</label>
+                    <input type="date" id="cmpDayA" />
+                </div>
+                <div class="cmp-picker-group">
+                    <label><span class="period-badge" style="background:#10B981;"></span>Period B</label>
+                    <input type="date" id="cmpDayB" />
+                </div>
+            </div>
+
+            <!-- Month pickers -->
+            <div class="cmp-pickers" id="cmpMonthPickers" style="display:none;">
+                <div class="cmp-picker-group">
+                    <label><span class="period-badge" style="background:#4F46E5;"></span>Period A</label>
+                    <input type="month" id="cmpMonthA" />
+                </div>
+                <div class="cmp-picker-group">
+                    <label><span class="period-badge" style="background:#10B981;"></span>Period B</label>
+                    <input type="month" id="cmpMonthB" />
+                </div>
+            </div>
+
+            <!-- Year pickers -->
+            <div class="cmp-pickers" id="cmpYearPickers" style="display:none;">
+                <div class="cmp-picker-group">
+                    <label><span class="period-badge" style="background:#4F46E5;"></span>Year A</label>
+                    <input type="number" id="cmpYearA" min="2000" max="2099" placeholder="e.g. 2024" />
+                </div>
+                <div class="cmp-picker-group">
+                    <label><span class="period-badge" style="background:#10B981;"></span>Year B</label>
+                    <input type="number" id="cmpYearB" min="2000" max="2099" placeholder="e.g. 2025" />
+                </div>
+            </div>
+
+            <button class="cmp-run-btn" id="cmpRunBtn">Run Comparison</button>
+        </div>
+    </div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script>
+        // ── Palette ────────────────────────────────────────────────
+        const PALETTE = [
+            '#4F46E5', '#10B981', '#F59E0B', '#EF4444',
+            '#8B5CF6', '#06B6D4', '#F97316', '#84CC16',
+            '#EC4899', '#14B8A6'
+        ];
+
+        // ── State ───────────────────────────────────────────────────
+        let allExpenses = [];
+        let activePeriod = 'month';
+        let periodOffset = 0; // 0 = current period, -1 = last, etc.
+
+        let pieChartInstance = null;
+        let barChartInstance = null;
+
+        // ── Smart Decimal formatter ─────────────────────────────────
+        function fmt(num) {
+            return '₹' + num.toLocaleString('en-IN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // ── Date range helpers ──────────────────────────────────────
+        function getPeriodRange(period, offset) {
+            const now = new Date();
+            let start, end, label, days;
+
+            if (period === 'day') {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+                start = new Date(d); start.setHours(0, 0, 0, 0);
+                end = new Date(d); end.setHours(23, 59, 59, 999);
+                label = d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                days = 1;
+            } else if (period === 'week') {
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const dayOfWeek = today.getDay(); // 0=Sun
+                const mon = new Date(today); mon.setDate(today.getDate() - ((dayOfWeek + 6) % 7) + offset * 7);
+                const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+                start = new Date(mon); start.setHours(0, 0, 0, 0);
+                end = new Date(sun); end.setHours(23, 59, 59, 999);
+                const opts = { day: 'numeric', month: 'short' };
+                label = mon.toLocaleDateString('en-IN', opts) + ' – ' + sun.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                days = 7;
+            } else if (period === 'month') {
+                const y = now.getFullYear(), m = now.getMonth() + offset;
+                const d1 = new Date(y, m, 1);
+                const d2 = new Date(y, m + 1, 0);
+                start = new Date(d1); start.setHours(0, 0, 0, 0);
+                end = new Date(d2); end.setHours(23, 59, 59, 999);
+                label = d1.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+                days = d2.getDate();
+            } else { // year
+                const y = now.getFullYear() + offset;
+                start = new Date(y, 0, 1); start.setHours(0, 0, 0, 0);
+                end = new Date(y, 11, 31); end.setHours(23, 59, 59, 999);
+                label = String(y);
+                days = 365;
+            }
+            return { start, end, label, days };
+        }
+
+        function filterExpenses(expenses, start, end) {
+            return expenses.filter(e => {
+                const d = new Date(e.expense_date);
+                return d >= start && d <= end;
+            });
+        }
+
+        // ── Chart helpers ──────────────────────────────────────────
+        function buildCategoryData(expenses) {
+            const map = {};
+            expenses.forEach(e => {
+                const cat = e.category_name || 'Other';
+                map[cat] = (map[cat] || 0) + parseFloat(e.amount);
+            });
+            // Sort descending
+            return Object.entries(map).sort((a, b) => b[1] - a[1]);
+        }
+
+        function buildTimelineData(expenses, period, start, days) {
+            const now = new Date();
+
+            if (period === 'day') {
+                // Determine if the day being viewed is today
+                const isToday = (
+                    start.getFullYear() === now.getFullYear() &&
+                    start.getMonth() === now.getMonth() &&
+                    start.getDate() === now.getDate()
+                );
+                const currentHour = now.getHours();
+
+                const hours = Array.from({ length: 24 }, (_, i) => i);
+                const buckets = Array(24).fill(0);
+                expenses.forEach(e => {
+                    const h = new Date(e.expense_date).getHours();
+                    buckets[h] += parseFloat(e.amount);
+                });
+                // Null out future hours for today
+                if (isToday) {
+                    for (let h = currentHour + 1; h < 24; h++) {
+                        buckets[h] = null;
+                    }
+                }
+                return { labels: hours.map(h => `${h}:00`), data: buckets };
+
+            } else if (period === 'week') {
+                const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const buckets = Array(7).fill(0);
+                expenses.forEach(e => {
+                    const d = new Date(e.expense_date);
+                    const idx = (d.getDay() + 6) % 7; // Mon=0
+                    buckets[idx] += parseFloat(e.amount);
+                });
+                // Null out future weekdays only if viewing current week
+                const weekStart = new Date(start);
+                const weekEnd = new Date(start); weekEnd.setDate(weekStart.getDate() + 6);
+                const isCurrentWeek = now >= weekStart && now <= weekEnd;
+                if (isCurrentWeek) {
+                    const todayIdx = (now.getDay() + 6) % 7; // today's Mon-based index
+                    for (let i = todayIdx + 1; i < 7; i++) {
+                        buckets[i] = null;
+                    }
+                }
+                return { labels, data: buckets };
+
+            } else if (period === 'month') {
+                const labels = [];
+                const buckets = [];
+                for (let i = 1; i <= days; i++) {
+                    labels.push(String(i));
+                    buckets.push(0);
+                }
+                expenses.forEach(e => {
+                    const day = new Date(e.expense_date).getDate();
+                    if (buckets[day - 1] !== undefined) buckets[day - 1] += parseFloat(e.amount);
+                });
+                // Null out future days if viewing current month
+                const isCurrentMonth = (
+                    start.getFullYear() === now.getFullYear() &&
+                    start.getMonth() === now.getMonth()
+                );
+                if (isCurrentMonth) {
+                    const todayDay = now.getDate();
+                    for (let i = todayDay; i < days; i++) {
+                        buckets[i] = null; // tomorrow onwards (index = day - 1, so todayDay = today's 1-based day)
+                    }
+                }
+                return { labels, data: buckets };
+
+            } else { // year
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const buckets = Array(12).fill(0);
+                expenses.forEach(e => {
+                    const m = new Date(e.expense_date).getMonth();
+                    buckets[m] += parseFloat(e.amount);
+                });
+                // Null out future months if viewing current year
+                const isCurrentYear = start.getFullYear() === now.getFullYear();
+                if (isCurrentYear) {
+                    const currentMonth = now.getMonth();
+                    for (let m = currentMonth + 1; m < 12; m++) {
+                        buckets[m] = null;
+                    }
+                }
+                return { labels: monthNames, data: buckets };
+            }
+        }
+
+        // ── Render ─────────────────────────────────────────────────
+        function renderAnalytics() {
+            const { start, end, label, days } = getPeriodRange(activePeriod, periodOffset);
+            document.getElementById('dateNavLabel').textContent = label;
+
+            const periodExp = filterExpenses(allExpenses, start, end);
+            const total = periodExp.reduce((s, e) => s + parseFloat(e.amount), 0);
+            const avg = days > 0 ? total / days : 0;
+            const catData = buildCategoryData(periodExp);
+
+            // ── Chips ──
+            document.getElementById('chipTotal').textContent = fmt(total);
+            document.getElementById('chipTxCount').textContent = periodExp.length + ' transaction' + (periodExp.length !== 1 ? 's' : '');
+            document.getElementById('chipAvg').textContent = fmt(avg);
+            if (catData.length > 0) {
+                document.getElementById('chipTopCat').textContent = catData[0][0];
+                document.getElementById('chipTopCatAmt').textContent = fmt(catData[0][1]);
+            } else {
+                document.getElementById('chipTopCat').textContent = '—';
+                document.getElementById('chipTopCatAmt').textContent = 'No data';
+            }
+
+            // ── Pie Chart ──
+            const pieEmpty = document.getElementById('pieEmpty');
+            const pieSection = document.getElementById('pieChartSection');
+            if (catData.length === 0) {
+                pieEmpty.style.display = 'flex';
+                pieSection.style.display = 'none';
+            } else {
+                pieEmpty.style.display = 'none';
+                pieSection.style.display = 'block';
+
+                const pieLabels = catData.map(([c]) => c);
+                const pieValues = catData.map(([, a]) => a);
+                const pieColors = catData.map((_, i) => PALETTE[i % PALETTE.length]);
+
+                if (pieChartInstance) pieChartInstance.destroy();
+                pieChartInstance = new Chart(document.getElementById('pieChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{
+                            data: pieValues,
+                            backgroundColor: pieColors,
+                            borderWidth: 3,
+                            borderColor: '#fff',
+                            hoverBorderWidth: 0
+                        }]
+                    },
+                    options: {
+                        cutout: '62%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} (${Math.round(ctx.raw / total * 100)}%)`
+                                }
+                            }
+                        },
+                        animation: { duration: 600, easing: 'easeInOutQuart' }
+                    }
+                });
+
+                // Legend
+                const legendEl = document.getElementById('pieLegend');
+                legendEl.innerHTML = catData.map(([name, amount], i) => `
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:${PALETTE[i % PALETTE.length]};"></span>
+                        <span class="legend-name">${name}</span>
+                        <span class="legend-amount">${fmt(amount)}</span>
+                    </div>
+                `).join('');
+            }
+
+            // ── Bar Chart ──
+            const { labels: barLabels, data: barData } = buildTimelineData(periodExp, activePeriod, start, days);
+            const barEmpty = document.getElementById('barEmpty');
+            const barSection = document.getElementById('barChartSection');
+            const hasBarData = barData.some(v => v > 0);
+
+            if (!hasBarData) {
+                barEmpty.style.display = 'flex';
+                barSection.style.display = 'none';
+            } else {
+                barEmpty.style.display = 'none';
+                barSection.style.display = 'block';
+
+                if (barChartInstance) barChartInstance.destroy();
+
+                const useLineChart = activePeriod === 'month' || activePeriod === 'year';
+
+                barChartInstance = new Chart(document.getElementById('barChart'), {
+                    type: useLineChart ? 'line' : 'bar',
+                    data: {
+                        labels: barLabels,
+                        datasets: [{
+                            label: 'Spending (₹)',
+                            data: barData,
+                            backgroundColor: useLineChart
+                                ? 'rgba(79, 70, 229, 0.12)'
+                                : 'rgba(79, 70, 229, 0.75)',
+                            borderColor: '#4F46E5',
+                            borderWidth: useLineChart ? 2.5 : 0,
+                            borderRadius: useLineChart ? 0 : 8,
+                            fill: useLineChart,
+                            tension: 0.4,
+                            spanGaps: false,   // ← don't draw over null (future) entries
+                            pointBackgroundColor: '#4F46E5',
+                            pointRadius: useLineChart ? 3 : 0,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ctx.raw === null ? ' No data' : ` ${fmt(ctx.raw)}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    font: { size: 11 },
+                                    color: '#9CA3AF',
+                                    maxTicksLimit: activePeriod === 'month' ? 15 : 12
+                                }
+                            },
+                            y: {
+                                grid: { color: '#F3F4F6' },
+                                ticks: {
+                                    font: { size: 11 },
+                                    color: '#9CA3AF',
+                                    callback: v => '₹' + v.toLocaleString('en-IN')
+                                },
+                                beginAtZero: true
+                            }
+                        },
+                        animation: { duration: 600, easing: 'easeInOutQuart' }
+                    }
+                });
+            }
+        }
+
+        // ── Init ────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authed = await requireAuth();
+            if (!authed) return;
+
+            try {
+                // Load all expenses (no limit)
+                allExpenses = await getExpenses(1000);
+            } catch (e) {
+                console.error('Failed to load expenses:', e);
+                allExpenses = [];
+            }
+
+            // Period tab clicks
+            document.querySelectorAll('.period-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                    btn.classList.add('active');
+                    activePeriod = btn.dataset.period;
+                    periodOffset = 0;
+                    renderAnalytics();
+                });
+            });
+
+            // Navigation arrows
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                periodOffset--;
+                renderAnalytics();
+            });
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                if (periodOffset < 0) { periodOffset++; renderAnalytics(); }
+            });
+
+            // Disable "next" if already at current period
+            const origNext = document.getElementById('nextBtn');
+            origNext.style.opacity = '0.35';
+            origNext.style.pointerEvents = 'none';
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                origNext.style.opacity = '1';
+                origNext.style.pointerEvents = '';
+            });
+            origNext.addEventListener('click', () => {
+                if (periodOffset >= 0) {
+                    origNext.style.opacity = '0.35';
+                    origNext.style.pointerEvents = 'none';
+                }
+            });
+
+            renderAnalytics();
+
+            document.getElementById('pageLoader').style.display = 'none';
+            document.getElementById('analyticsContent').style.display = 'block';
+
+            // ── Comparison Feature ──────────────────────────────────
+            initCompare();
+        });
+
+        // ── Comparison chart instances ──────────────────────────────
+        let cmpWormInstance = null;
+        let cmpPieAInstance = null;
+        let cmpPieBInstance = null;
+        let activeCmpType = 'day'; // 'day' | 'month' | 'year'
+
+        function initCompare() {
+            const overlay = document.getElementById('cmpModalOverlay');
+            const openBtn = document.getElementById('openCompareBtn');
+            const closeBtn = document.getElementById('cmpCloseModalBtn');
+            const runBtn = document.getElementById('cmpRunBtn');
+            const clearBtn = document.getElementById('cmpClearBtn');
+
+            // Open modal
+            openBtn.addEventListener('click', () => {
+                prefillDefaults();
+                overlay.classList.add('show');
+            });
+
+            // Close modal (overlay click or X)
+            closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
+            overlay.addEventListener('click', e => {
+                if (e.target === overlay) overlay.classList.remove('show');
+            });
+
+            // Type tabs
+            document.querySelectorAll('.cmp-type-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.cmp-type-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    activeCmpType = tab.dataset.ctype;
+                    showCmpPickers(activeCmpType);
+                });
+            });
+
+            // Run comparison
+            runBtn.addEventListener('click', () => {
+                const ranges = getCmpRanges();
+                if (!ranges) return;
+                overlay.classList.remove('show');
+                openBtn.classList.add('active-cmp');
+                renderComparison(ranges.a, ranges.b);
+            });
+
+            // Clear
+            clearBtn.addEventListener('click', () => {
+                document.getElementById('cmpResultSection').style.display = 'none';
+                openBtn.classList.remove('active-cmp');
+                if (cmpWormInstance) { cmpWormInstance.destroy(); cmpWormInstance = null; }
+                if (cmpPieAInstance) { cmpPieAInstance.destroy(); cmpPieAInstance = null; }
+                if (cmpPieBInstance) { cmpPieBInstance.destroy(); cmpPieBInstance = null; }
+            });
+        }
+
+        function showCmpPickers(type) {
+            document.getElementById('cmpDayPickers').style.display = type === 'day' ? 'grid' : 'none';
+            document.getElementById('cmpMonthPickers').style.display = type === 'month' ? 'grid' : 'none';
+            document.getElementById('cmpYearPickers').style.display = type === 'year' ? 'grid' : 'none';
+        }
+
+        function prefillDefaults() {
+            const now = new Date();
+            const toDateStr = d => d.toISOString().slice(0, 10);
+            const toMonthStr = d => d.toISOString().slice(0, 7);
+
+            // Day: today vs yesterday
+            const today = toDateStr(now);
+            const yesterday = toDateStr(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+            document.getElementById('cmpDayA').value = yesterday;
+            document.getElementById('cmpDayB').value = today;
+
+            // Month: last month vs this month
+            const thisMonth = toMonthStr(now);
+            const lastMonth = toMonthStr(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+            document.getElementById('cmpMonthA').value = lastMonth;
+            document.getElementById('cmpMonthB').value = thisMonth;
+
+            // Year: last year vs this year
+            document.getElementById('cmpYearA').value = now.getFullYear() - 1;
+            document.getElementById('cmpYearB').value = now.getFullYear();
+        }
+
+        // Returns { a: {start,end,label,bucketCount,bucketLabels}, b: ... } or null on error
+        function getCmpRanges() {
+            if (activeCmpType === 'day') {
+                const da = document.getElementById('cmpDayA').value;
+                const db = document.getElementById('cmpDayB').value;
+                if (!da || !db) { alert('Please select both dates.'); return null; }
+                return { a: dayRange(da), b: dayRange(db) };
+            }
+            if (activeCmpType === 'month') {
+                const ma = document.getElementById('cmpMonthA').value;
+                const mb = document.getElementById('cmpMonthB').value;
+                if (!ma || !mb) { alert('Please select both months.'); return null; }
+                return { a: monthRange(ma), b: monthRange(mb) };
+            }
+            // year
+            const ya = parseInt(document.getElementById('cmpYearA').value);
+            const yb = parseInt(document.getElementById('cmpYearB').value);
+            if (!ya || !yb) { alert('Please enter both years.'); return null; }
+            return { a: yearRange(ya), b: yearRange(yb) };
+        }
+
+        function dayRange(dateStr) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const start = new Date(y, m - 1, d, 0, 0, 0, 0);
+            const end = new Date(y, m - 1, d, 23, 59, 59, 999);
+            const label = start.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            // For day: buckets by hour (0-23)
+            const bucketLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+            const bucketCount = 24;
+            return { start, end, label, bucketLabels, bucketCount, type: 'day' };
+        }
+
+        function monthRange(monthStr) {
+            const [y, m] = monthStr.split('-').map(Number);
+            const start = new Date(y, m - 1, 1, 0, 0, 0, 0);
+            const end = new Date(y, m, 0, 23, 59, 59, 999);
+            const label = start.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+            const daysInMonth = end.getDate();
+            const bucketLabels = Array.from({ length: daysInMonth }, (_, i) => String(i + 1));
+            return { start, end, label, bucketLabels, bucketCount: daysInMonth, type: 'month' };
+        }
+
+        function yearRange(y) {
+            const start = new Date(y, 0, 1, 0, 0, 0, 0);
+            const end = new Date(y, 11, 31, 23, 59, 59, 999);
+            const label = String(y);
+            const bucketLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return { start, end, label, bucketLabels, bucketCount: 12, type: 'year' };
+        }
+
+        // Build bucket array from expenses for a given range
+        function buildCmpBuckets(expenses, range) {
+            const buckets = Array(range.bucketCount).fill(0);
+            expenses.forEach(e => {
+                const d = new Date(e.expense_date);
+                if (d < range.start || d > range.end) return;
+                let idx;
+                if (range.type === 'day') idx = d.getHours();
+                else if (range.type === 'month') idx = d.getDate() - 1;
+                else idx = d.getMonth();
+                if (idx >= 0 && idx < range.bucketCount) buckets[idx] += parseFloat(e.amount);
+            });
+            return buckets;
+        }
+
+        function renderComparison(rangeA, rangeB) {
+            const expA = filterExpenses(allExpenses, rangeA.start, rangeA.end);
+            const expB = filterExpenses(allExpenses, rangeB.start, rangeB.end);
+
+            const totalA = expA.reduce((s, e) => s + parseFloat(e.amount), 0);
+            const totalB = expB.reduce((s, e) => s + parseFloat(e.amount), 0);
+
+            // Labels
+            document.getElementById('cmpLabelA').textContent = rangeA.label;
+            document.getElementById('cmpLabelB').textContent = rangeB.label;
+            document.getElementById('cmpPieLabelA').textContent = rangeA.label;
+            document.getElementById('cmpPieLabelB').textContent = rangeB.label;
+            document.getElementById('cmpStatLabelA').textContent = rangeA.label;
+            document.getElementById('cmpStatLabelB').textContent = rangeB.label;
+
+            // Stat cards
+            document.getElementById('cmpStatTotalA').textContent = fmt(totalA);
+            document.getElementById('cmpStatTotalB').textContent = fmt(totalB);
+            document.getElementById('cmpStatTxA').textContent = expA.length + ' transaction' + (expA.length !== 1 ? 's' : '');
+            document.getElementById('cmpStatTxB').textContent = expB.length + ' transaction' + (expB.length !== 1 ? 's' : '');
+
+            // ── Worm chart (only for month or year) ──
+            const wormCard = document.getElementById('cmpWormCard');
+            if (rangeA.type === 'day') {
+                // Day vs Day: hide worm chart (only pie charts are meaningful)
+                wormCard.style.display = 'none';
+            } else {
+                wormCard.style.display = '';
+                const bucketsA = buildCmpBuckets(expA, rangeA);
+                const bucketsB = buildCmpBuckets(expB, rangeB);
+
+                // Align labels (use the longer period's labels; pad shorter with zeros/null)
+                const maxLen = Math.max(rangeA.bucketCount, rangeB.bucketCount);
+                const labelsA = rangeA.bucketLabels;
+                const labelsB = rangeB.bucketLabels;
+                // Use Period A labels as x-axis base; overlay B on same scale
+                const xLabels = labelsA.length >= labelsB.length ? labelsA : labelsB;
+
+                // Pad bucket arrays
+                while (bucketsA.length < maxLen) bucketsA.push(null);
+                while (bucketsB.length < maxLen) bucketsB.push(null);
+
+                if (cmpWormInstance) cmpWormInstance.destroy();
+                cmpWormInstance = new Chart(document.getElementById('cmpWormChart'), {
+                    type: 'line',
+                    data: {
+                        labels: xLabels,
+                        datasets: [
+                            {
+                                label: rangeA.label,
+                                data: bucketsA,
+                                borderColor: '#4F46E5',
+                                backgroundColor: 'rgba(79,70,229,0.10)',
+                                fill: true,
+                                tension: 0.4,
+                                spanGaps: false,
+                                pointRadius: 3,
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#4F46E5',
+                                borderWidth: 2.5
+                            },
+                            {
+                                label: rangeB.label,
+                                data: bucketsB,
+                                borderColor: '#10B981',
+                                backgroundColor: 'rgba(16,185,129,0.09)',
+                                fill: true,
+                                tension: 0.4,
+                                spanGaps: false,
+                                pointRadius: 3,
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#10B981',
+                                borderWidth: 2.5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: { boxWidth: 12, padding: 16, font: { size: 12, weight: '600' } }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ctx.raw === null ? ` ${ctx.dataset.label}: No data` : ` ${ctx.dataset.label}: ${fmt(ctx.raw)}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11 }, color: '#9CA3AF', maxTicksLimit: rangeA.type === 'month' ? 15 : 12 }
+                            },
+                            y: {
+                                grid: { color: '#F3F4F6' },
+                                ticks: {
+                                    font: { size: 11 },
+                                    color: '#9CA3AF',
+                                    callback: v => '₹' + v.toLocaleString('en-IN')
+                                },
+                                beginAtZero: true
+                            }
+                        },
+                        animation: { duration: 600, easing: 'easeInOutQuart' }
+                    }
+                });
+            }
+
+            // ── Dual Pie charts ──
+            renderCmpPie(expA, totalA, 'cmpPieChartA', 'cmpPieLegendA', 'A', () => cmpPieAInstance,
+                inst => cmpPieAInstance = inst);
+            renderCmpPie(expB, totalB, 'cmpPieChartB', 'cmpPieLegendB', 'B', () => cmpPieBInstance,
+                inst => cmpPieBInstance = inst);
+
+            // Show results section
+            document.getElementById('cmpResultSection').style.display = 'block';
+            // Scroll into view smoothly
+            setTimeout(() => {
+                document.getElementById('cmpResultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        function renderCmpPie(expenses, total, canvasId, legendId, suffix, getInstance, setInstance) {
+            const catData = buildCategoryData(expenses);
+            const legend = document.getElementById(legendId);
+
+            if (catData.length === 0) {
+                if (getInstance()) { getInstance().destroy(); setInstance(null); }
+                legend.innerHTML = '<p style="text-align:center;color:#9CA3AF;font-size:0.82rem;padding:12px;">No data</p>';
+                return;
+            }
+
+            const pieColors = catData.map((_, i) => PALETTE[i % PALETTE.length]);
+            if (getInstance()) getInstance().destroy();
+
+            setInstance(new Chart(document.getElementById(canvasId), {
+                type: 'doughnut',
+                data: {
+                    labels: catData.map(([c]) => c),
+                    datasets: [{
+                        data: catData.map(([, a]) => a),
+                        backgroundColor: pieColors,
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverBorderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '60%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} (${Math.round(ctx.raw / total * 100)}%)`
+                            }
+                        }
+                    },
+                    animation: { duration: 500, easing: 'easeInOutQuart' }
+                }
+            }));
+
+            legend.innerHTML = catData.map(([name, amount], i) => `
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:${PALETTE[i % PALETTE.length]};"></span>
+                    <span class="legend-name">${name}</span>
+                    <span class="legend-amount">${fmt(amount)}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+
+</html>

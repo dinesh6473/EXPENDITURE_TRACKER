@@ -156,6 +156,36 @@ async function deleteSaving(savingId) {
     if (error) throw error;
 }
 
+// ---- WALLET TRANSACTIONS ----
+
+async function addWalletTransaction(amount, description = 'Wallet top-up') {
+    const user = await getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await _supabase.from('wallet_transactions').insert({
+        user_id: user.id,
+        amount: parseFloat(amount),
+        description
+    }).select().single();
+
+    if (error) throw error;
+    return data;
+}
+
+async function getWalletTransactions() {
+    const user = await getUser();
+    if (!user) return [];
+
+    const { data, error } = await _supabase
+        .from('wallet_transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+}
+
 // ---- WALLET SUMMARY ----
 
 async function getWalletSummary() {

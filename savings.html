@@ -10,30 +10,99 @@
 </head>
 
 <body>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ======= APP NAVIGATION ======= -->
-    <nav class="app-nav">
+    <nav class="app-nav" id="appNav">
         <div class="container">
+            <!-- Hamburger -->
+            <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Brand (visible only when expanded) -->
             <a href="dashboard.html" class="navbar-logo">
                 <span class="brand-text">ExpenseIQ</span>
             </a>
+
             <div class="app-nav-links">
-                <a href="dashboard.html">📊 <span class="nav-text">Dashboard</span></a>
-                <a href="add-expense.html">➕ <span class="nav-text">Add Expense</span></a>
-                <a href="transactions.html">📜 <span class="nav-text">Transactions</span></a>
-                <a href="savings.html" class="active">💰 <span class="nav-text">Savings</span></a>
-                <a href="profile.html">👤 <span class="nav-text">Profile</span></a>
-                <a href="#" class="logout-link" id="logoutBtn">🚪 <span class="nav-text">Logout</span></a>
+                <a href="dashboard.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="analytics.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg></span>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                <a href="savings.html" class="active">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg></span>
+                    <span class="nav-text">Savings</span>
+                </a>
+                <a href="history.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></span>
+                    <span class="nav-text">History</span>
+                </a>
+                <a href="profile.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span>
+                    <span class="nav-text">Profile</span>
+                </a>
+                <div style="flex:1;"></div>
+                <a href="#" class="logout-link" id="logoutBtn">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg></span>
+                    <span class="nav-text">Logout</span>
+                </a>
             </div>
         </div>
     </nav>
 
+    <!-- ======= TOP USER BAR ======= -->
+    <header class="top-user-bar">
+        <div class="top-user-info">
+            <a href="profile.html" title="Go to Profile">
+                <div class="top-user-avatar" id="userAvatar">D</div>
+            </a>
+            <span class="top-user-name" id="topUserName">Student</span>
+        </div>
+    </header>
+
     <!-- ======= PAGE CONTENT ======= -->
     <main class="page-content">
-        <div class="container" style="max-width:800px;">
-            <div class="page-header">
-                <h1>Savings Tracker</h1>
-                <p>Set aside money from your wallet and build a savings habit.</p>
-            </div>
+        <div class="container">
 
             <!-- Page Loader -->
             <div class="page-loader" id="pageLoader">
@@ -41,100 +110,238 @@
             </div>
 
             <div id="savingsContent" style="display:none;">
-                <!-- Savings Summary Card -->
-                <div class="savings-card" style="margin-bottom:28px;">
-                    <h3>Total Savings</h3>
-                    <div class="savings-amount" id="totalSavings">₹0</div>
-                    <div class="savings-label" id="savingsContext">Keep saving to reach your goals!</div>
-                </div>
 
-                <!-- Wallet vs Savings Comparison -->
-                <div class="content-grid" style="margin-bottom:28px;">
-                    <div class="card card-elevated">
-                        <h4 style="margin-bottom:16px;">Wallet Breakdown</h4>
-                        <div style="display:flex;flex-direction:column;gap:12px;">
-                            <div
-                                style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);">
-                                <span style="color:var(--gray-500);font-size:0.9rem;">Monthly Allowance</span>
-                                <span style="font-weight:600;" id="wAllowance">₹0</span>
+                <!-- ── Hero Banner ─────────────────────────────────── -->
+                <div
+                    style="background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);border-radius:20px;padding:32px 28px;color:#ffffff;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+                    <div>
+                        <p
+                            style="font-size:0.88rem;font-weight:600;color:#ffffff;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">
+                            Total Savings</p>
+                        <div style="font-size:2.8rem;font-weight:800;letter-spacing:-0.04em;line-height:1;color:#ffffff;"
+                            id="totalSavings">₹0</div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                            <div id="savingsPercentBadge"
+                                style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);backdrop-filter:blur(6px);padding:5px 14px;border-radius:20px;font-size:0.88rem;font-weight:700;color:#ffffff;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                    <polyline points="17 6 23 6 23 12" />
+                                </svg>
+                                <span id="savingsPercentValue">0%</span> saved
                             </div>
-                            <div
-                                style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);">
-                                <span style="color:var(--gray-500);font-size:0.9rem;">Total Spent</span>
-                                <span style="font-weight:600;color:var(--danger);" id="wSpent">₹0</span>
-                            </div>
-                            <div
-                                style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);">
-                                <span style="color:var(--gray-500);font-size:0.9rem;">Savings Set Aside</span>
-                                <span style="font-weight:600;color:var(--accent-dark);" id="wSavings">₹0</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;padding:10px 0;">
-                                <span style="font-weight:600;color:var(--gray-700);">Available Balance</span>
-                                <span style="font-weight:700;font-size:1.15rem;color:var(--primary);"
-                                    id="wRemaining">₹0</span>
-                            </div>
+                            <p style="margin:0;color:#ffffff;font-size:0.92rem;opacity:0.85;" id="savingsContext">Keep
+                                saving to
+                                reach your goals!</p>
                         </div>
                     </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none"
+                        stroke="rgba(255,255,255,0.3)" stroke-width="1.2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.8 1.5-2.1 1.5-3.5C19.5 10 21 7 21 5h-2z" />
+                        <path d="M2 9.5C2 14 6 15 6.5 15" />
+                        <line x1="16" y1="8" x2="16" y2="8" />
+                    </svg>
+                </div>
 
-                    <!-- Add Savings Form -->
-                    <div class="card card-elevated">
-                        <h4 style="margin-bottom:16px;">Transfer to Savings</h4>
-                        <p style="font-size:0.88rem;margin-bottom:20px;">Move money from your wallet balance into your
-                            savings.</p>
+                <!-- ── Stat Mini-Cards Row ──────────────────────────── -->
+                <div class="stats-grid"
+                    style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px;">
+                    <div class="stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
+                        <p
+                            style="font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin:0;">
+                            Total Topped Up</p>
+                        <p style="font-size:1.35rem;font-weight:800;color:var(--gray-800);margin:0;" id="wAllowance">₹0
+                        </p>
+                    </div>
+                    <div class="stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
+                        <p
+                            style="font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin:0;">
+                            Total Spent</p>
+                        <p style="font-size:1.35rem;font-weight:800;color:var(--danger);margin:0;" id="wSpent">₹0</p>
+                    </div>
+                    <div class="stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
+                        <p
+                            style="font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin:0;">
+                            Saved</p>
+                        <p style="font-size:1.35rem;font-weight:800;color:#7C3AED;margin:0;" id="wSavings">₹0</p>
+                    </div>
+                    <div class="stat-card"
+                        style="padding:18px 20px;flex-direction:column;gap:8px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#a7f3d0;">
+                        <p
+                            style="font-size:0.78rem;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.06em;margin:0;">
+                            Wallet</p>
+                        <p style="font-size:1.35rem;font-weight:800;color:#059669;margin:0;" id="wRemaining">₹0</p>
+                    </div>
+                </div>
+
+                <!-- ── Two Action Cards Side by Side ───────────────── -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+
+                    <!-- Transfer to Savings -->
+                    <div class="card card-elevated" style="padding:24px;">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                            <div
+                                style="width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="#7C3AED" stroke-width="2.2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                                    <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z" />
+                                </svg>
+                            </div>
+                            <h4 style="margin:0;font-size:1rem;color:#7C3AED;">Add to Savings</h4>
+                        </div>
+                        <p style="font-size:0.83rem;color:var(--gray-400);margin-bottom:20px;">Move money from wallet
+                            into savings.</p>
 
                         <div class="alert alert-error" id="savingsError">
-                            <span>⚠️</span>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg></span>
                             <span id="savingsErrorText"></span>
                         </div>
-
                         <div class="alert alert-success" id="savingsSuccess">
-                            <span>✅</span>
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg></span>
                             <span id="savingsSuccessText"></span>
                         </div>
 
                         <form id="savingsForm">
                             <div class="form-group">
                                 <label for="savingsAmount">Amount (₹)</label>
-                                <input type="number" id="savingsAmount" class="form-control"
-                                    placeholder="Enter amount to save" required min="1" step="0.01">
+                                <input type="number" id="savingsAmount" class="form-control" placeholder="e.g. 500"
+                                    required min="1" step="0.01">
                             </div>
                             <div class="form-group">
-                                <label for="savingsDesc">Description (Optional)</label>
+                                <label for="savingsDesc">Note (Optional)</label>
                                 <input type="text" id="savingsDesc" class="form-control"
-                                    placeholder="e.g., Emergency fund, Weekend trip">
+                                    placeholder="e.g. Emergency fund, Trip">
                             </div>
-                            <button type="submit" class="btn btn-accent btn-full" id="addSavingsBtn">
-                                💰 Add to Savings
+                            <button type="submit" class="btn btn-full" id="addSavingsBtn"
+                                style="background:#7C3AED;color:white;border:none;padding:12px;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                                Add to Savings
                             </button>
                         </form>
                     </div>
+
+                    <!-- Withdraw to Wallet -->
+                    <div class="card card-elevated" style="padding:24px;">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                            <div
+                                style="width:36px;height:36px;border-radius:10px;background:#d1fae5;display:flex;align-items:center;justify-content:center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="17 1 21 5 17 9" />
+                                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                                    <polyline points="7 23 3 19 7 15" />
+                                    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                                </svg>
+                            </div>
+                            <h4 style="margin:0;font-size:1rem;color:#059669;">Withdraw to Wallet</h4>
+                        </div>
+                        <p style="font-size:0.83rem;color:var(--gray-400);margin-bottom:20px;">Move money from savings
+                            back to wallet.</p>
+
+                        <div class="alert alert-error" id="withdrawError">
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg></span>
+                            <span id="withdrawErrorText"></span>
+                        </div>
+                        <div class="alert alert-success" id="withdrawSuccess">
+                            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg></span>
+                            <span id="withdrawSuccessText"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="withdrawAmount">Amount (₹)</label>
+                            <input type="number" id="withdrawAmount" class="form-control" placeholder="e.g. 200" min="1"
+                                step="0.01">
+                        </div>
+                        <div style="height:62px;"></div><!-- spacer to align button with form above -->
+                        <button class="btn btn-full" id="withdrawToWalletBtn"
+                            style="background:#059669;color:white;border:none;padding:12px;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="17 1 21 5 17 9" />
+                                <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                                <polyline points="7 23 3 19 7 15" />
+                                <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                            </svg>
+                            Withdraw to Wallet
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Savings History -->
-                <div class="table-container">
-                    <div class="table-header">
-                        <h3>Savings History</h3>
+                <!-- ── Savings History ──────────────────────────────── -->
+                <div class="card card-elevated" style="padding:0;overflow:hidden;">
+                    <div
+                        style="padding:20px 24px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:10px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <h3 style="margin:0;font-size:1rem;">Savings History</h3>
                     </div>
-                    <table>
+                    <table style="width:100%;border-collapse:collapse;">
                         <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Description</th>
-                                <th style="text-align:right;">Amount</th>
-                                <th style="width:50px;"></th>
+                            <tr style="background:var(--gray-50);">
+                                <th
+                                    style="padding:12px 24px;text-align:left;font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;">
+                                    Date</th>
+                                <th
+                                    style="padding:12px 24px;text-align:left;font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;">
+                                    Description</th>
+                                <th
+                                    style="padding:12px 24px;text-align:right;font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;">
+                                    Amount</th>
+                                <th style="padding:12px 24px;width:48px;"></th>
                             </tr>
                         </thead>
-                        <tbody id="savingsHistory">
-                        </tbody>
+                        <tbody id="savingsHistory"></tbody>
                     </table>
                 </div>
+
             </div>
         </div>
     </main>
 
+
+
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
     <script>
         let walletData = null;
 
@@ -153,19 +360,26 @@
 
                 walletData = wallet;
 
-                // Update savings summary
-                document.getElementById('totalSavings').textContent = '₹' + wallet.totalSavings.toLocaleString('en-IN');
+                // Compute stats from savings history
+                const totalDeposits = savings.filter(s => parseFloat(s.amount) > 0).reduce((sum, s) => sum + parseFloat(s.amount), 0);
+                const totalWithdrawn = savings.filter(s => parseFloat(s.amount) < 0).reduce((sum, s) => sum + Math.abs(parseFloat(s.amount)), 0);
+                const netSavings = totalDeposits - totalWithdrawn;
+
+                // Update savings summary (hero) — animated count-up
+                countUp(document.getElementById('totalSavings'), netSavings, '₹');
 
                 const savingsPercent = wallet.monthlyAllowance > 0
-                    ? Math.round((wallet.totalSavings / wallet.monthlyAllowance) * 100) : 0;
+                    ? Math.round((netSavings / wallet.monthlyAllowance) * 100) : 0;
+                // Animate the savings percentage badge
+                countUpBare(document.getElementById('savingsPercentValue'), savingsPercent, '%');
                 document.getElementById('savingsContext').textContent =
-                    `You've saved ${savingsPercent}% of your monthly allowance!`;
+                    `of your total topped up amount!`;
 
-                // Wallet breakdown
-                document.getElementById('wAllowance').textContent = '₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
-                document.getElementById('wSpent').textContent = '₹' + wallet.totalSpent.toLocaleString('en-IN');
-                document.getElementById('wSavings').textContent = '₹' + wallet.totalSavings.toLocaleString('en-IN');
-                document.getElementById('wRemaining').textContent = '₹' + wallet.remaining.toLocaleString('en-IN');
+                // Stat cards — animated from 0 with rounding
+                countUp(document.getElementById('wAllowance'), wallet.monthlyAllowance, '₹');
+                countUp(document.getElementById('wSpent'), wallet.totalSpent, '₹');
+                countUp(document.getElementById('wSavings'), netSavings, '₹');
+                countUp(document.getElementById('wRemaining'), wallet.remaining, '₹');
 
                 // Savings history
                 const tbody = document.getElementById('savingsHistory');
@@ -173,7 +387,7 @@
                     tbody.innerHTML = `
             <tr><td colspan="4">
               <div class="empty-state" style="padding:24px;">
-                <div class="empty-icon">🏦</div>
+                <div class="empty-icon"><svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg></div>
                 <p>No savings yet. Start saving today!</p>
               </div>
             </td></tr>`;
@@ -182,9 +396,9 @@
             <tr>
               <td>${new Date(s.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
               <td>${s.description || 'Savings deposit'}</td>
-              <td style="text-align:right;" class="amount-positive">+₹${parseFloat(s.amount).toLocaleString('en-IN')}</td>
+              <td style="text-align:right;" class="amount-positive">+₹${parseFloat(s.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
               <td>
-                <button class="btn-delete" onclick="handleDeleteSaving('${s.id}')" title="Delete">🗑️</button>
+                <button class="btn-delete" onclick="handleDeleteSaving('${s.id}')" title="Delete"><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 6 5 6 21 6'/><path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2'/></svg></button>
               </td>
             </tr>
           `).join('');
@@ -212,7 +426,7 @@
             }
 
             if (walletData && amount > walletData.remaining) {
-                showError('Insufficient balance. You only have ₹' + walletData.remaining.toLocaleString('en-IN') + ' available.');
+                showError('Insufficient balance. You only have ₹' + walletData.remaining.toLocaleString('en-IN', { minimumFractionDigits: 2 }) + ' available.');
                 return;
             }
 
@@ -222,7 +436,7 @@
 
             try {
                 await addSaving(amount, desc || 'Savings deposit');
-                showSuccess('₹' + amount.toLocaleString('en-IN') + ' added to savings!');
+                showSuccess('₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) + ' added to savings!');
                 document.getElementById('savingsForm').reset();
                 await loadSavingsPage();
             } catch (err) {
@@ -230,7 +444,56 @@
             }
 
             btn.disabled = false;
-            btn.textContent = '💰 Add to Savings';
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:middle;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add to Savings`;
+        });
+
+        // Withdraw from Savings → back to Wallet
+        document.getElementById('withdrawToWalletBtn').addEventListener('click', async () => {
+            document.getElementById('withdrawError').classList.remove('show');
+            document.getElementById('withdrawSuccess').classList.remove('show');
+
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            if (!amount || amount <= 0) {
+                document.getElementById('withdrawErrorText').textContent = 'Please enter a valid amount.';
+                document.getElementById('withdrawError').classList.add('show');
+                return;
+            }
+
+            if (walletData && amount > walletData.totalSavings) {
+                document.getElementById('withdrawErrorText').textContent =
+                    'Amount exceeds your total savings of ₹' + walletData.totalSavings.toLocaleString('en-IN', { minimumFractionDigits: 2 }) + '.';
+                document.getElementById('withdrawError').classList.add('show');
+                return;
+            }
+
+            const btn = document.getElementById('withdrawToWalletBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Processing...';
+
+            try {
+                // 1. Add a negative savings entry to reduce savings balance
+                await addSaving(-amount, 'Withdrawn to wallet');
+
+                // 2. Add the amount back to monthly_allowance (wallet top-up)
+                const profile = await getUserProfile();
+                const newAllowance = parseFloat(profile.monthly_allowance) + amount;
+                await updateProfile({ monthly_allowance: newAllowance });
+
+                // 3. Log the wallet transaction
+                await addWalletTransaction(amount, 'Transferred from Savings');
+
+                document.getElementById('withdrawSuccessText').textContent =
+                    '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) + ' moved back to your wallet!';
+                document.getElementById('withdrawSuccess').classList.add('show');
+                document.getElementById('withdrawAmount').value = '';
+                await loadSavingsPage(); // refresh all numbers
+            } catch (err) {
+                document.getElementById('withdrawErrorText').textContent = err.message || 'Transfer failed.';
+                document.getElementById('withdrawError').classList.add('show');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:middle;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Withdraw to Wallet`;
         });
 
         async function handleDeleteSaving(id) {
@@ -243,10 +506,6 @@
             }
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await logout();
-        });
 
         function showError(msg) {
             document.getElementById('savingsErrorText').textContent = msg;
@@ -261,6 +520,55 @@
         function hideAlerts() {
             document.getElementById('savingsError').classList.remove('show');
             document.getElementById('savingsSuccess').classList.remove('show');
+        }
+
+        // ── Smooth count-up helpers (same as dashboard) ─────────────
+        function countUp(el, target, prefix = '₹', sign = '', sigFirst = false, duration = 1200) {
+            if (!el) return;
+            const currentText = el.textContent.replace(/[^\d.-]/g, '');
+            const startVal = parseFloat(currentText) || 0;
+
+            const start = performance.now();
+            function step(now) {
+                const p = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                const current = startVal + ease * (target - startVal);
+
+                const formatted = current.toLocaleString('en-IN', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+
+                let finalHTML = '';
+                if (formatted.includes('.')) {
+                    const parts = formatted.split('.');
+                    const mainPart = parts[0];
+                    const decimalPart = parts[1];
+                    finalHTML = `${sigFirst ? sign + prefix : prefix}${mainPart}<span class="decimal-small">.${decimalPart}</span>`;
+                } else {
+                    finalHTML = sigFirst ? sign + prefix + formatted : prefix + formatted;
+                }
+
+                el.innerHTML = finalHTML;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function countUpBare(el, target, suffix = '', duration = 1200) {
+            if (!el) return;
+            const currentText = el.textContent.replace(/[^\d.-]/g, '');
+            const startVal = parseFloat(currentText) || 0;
+
+            const start = performance.now();
+            function step(now) {
+                const p = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                const current = startVal + ease * (target - startVal);
+                el.textContent = Math.round(current) + suffix;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
         }
     </script>
 </body>

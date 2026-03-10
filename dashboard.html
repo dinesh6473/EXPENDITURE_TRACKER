@@ -10,22 +10,95 @@
 </head>
 
 <body>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ======= APP NAVIGATION ======= -->
-    <nav class="app-nav">
+    <nav class="app-nav" id="appNav">
         <div class="container">
+            <!-- Hamburger -->
+            <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Brand (visible only when expanded) -->
             <a href="dashboard.html" class="navbar-logo">
                 <span class="brand-text">ExpenseIQ</span>
             </a>
+
             <div class="app-nav-links">
-                <a href="dashboard.html" class="active">📊 <span class="nav-text">Dashboard</span></a>
-                <a href="add-expense.html">➕ <span class="nav-text">Add Expense</span></a>
-                <a href="transactions.html">📜 <span class="nav-text">Transactions</span></a>
-                <a href="savings.html">💰 <span class="nav-text">Savings</span></a>
-                <a href="profile.html">👤 <span class="nav-text">Profile</span></a>
-                <a href="#" class="logout-link" id="logoutBtn">🚪 <span class="nav-text">Logout</span></a>
+                <a href="dashboard.html" class="active">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="analytics.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg></span>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                <a href="savings.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg></span>
+                    <span class="nav-text">Savings</span>
+                </a>
+                <a href="history.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></span>
+                    <span class="nav-text">History</span>
+                </a>
+                <a href="profile.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span>
+                    <span class="nav-text">Profile</span>
+                </a>
+                <div style="flex:1;"></div>
+                <a href="#" class="logout-link" id="logoutBtn">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg></span>
+                    <span class="nav-text">Logout</span>
+                </a>
             </div>
         </div>
     </nav>
+
+    <!-- ======= TOP USER BAR ======= -->
+    <header class="top-user-bar">
+        <div class="top-user-info">
+            <a href="profile.html" title="Go to Profile">
+                <div class="top-user-avatar" id="userAvatar">D</div>
+            </a>
+            <span class="top-user-name" id="topUserName">Student</span>
+        </div>
+    </header>
 
     <!-- ======= PAGE CONTENT ======= -->
     <main class="page-content">
@@ -35,42 +108,157 @@
                 <div class="spinner" style="width:40px;height:40px;border-width:3px;"></div>
             </div>
 
+            <!-- ======= SIDE DRAWER (ADD EXPENSE) ======= -->
+            <div class="side-drawer-overlay" id="drawerOverlay"></div>
+            <div class="side-drawer" id="sideDrawer">
+                <div class="side-drawer-header">
+                    <h3>Add Expense</h3>
+                    <button class="side-drawer-close" id="closeDrawerBtn">✕</button>
+                </div>
+                <div class="side-drawer-body">
+                    <div class="alert alert-error" id="drawerError" style="display:none; margin-bottom:20px;">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg></span> <span id="drawerErrorText"></span>
+                    </div>
+                    <div class="alert alert-success" id="drawerSuccess" style="display:none; margin-bottom:20px;">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg></span> <span id="drawerSuccessText"></span>
+                    </div>
+
+                    <form id="drawerExpenseForm">
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="drawerAmount" class="form-control" placeholder="0.00" required
+                                min="1" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="drawerCategory" class="form-control" required>
+                                <option value="">Select a category</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="customCategoryGroup" style="display:none;">
+                            <label>Custom Category Name</label>
+                            <input type="text" id="drawerCustomCategory" class="form-control"
+                                placeholder="e.g., Gym, Gifts">
+                        </div>
+                        <div class="form-group">
+                            <label>Description (Optional)</label>
+                            <input type="text" id="drawerDescription" class="form-control"
+                                placeholder="What was this for?">
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="drawerExpenseDate" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="side-drawer-footer">
+                    <button type="submit" form="drawerExpenseForm" class="btn btn-primary btn-full btn-lg"
+                        id="addExpenseBtn">
+                        Add Expense
+                    </button>
+                </div>
+            </div>
+
             <!-- Main Content (hidden until loaded) -->
             <div id="dashboardContent" style="display:none;">
-                <!-- Page Header -->
-                <div class="page-header">
-                    <h1>Welcome back, <span id="userName">Student</span> 👋</h1>
-                    <p>Here's your financial overview for this month.</p>
+                <!-- Dashboard Action Bar -->
+                <div class="dash-action-bar">
+                    <div class="dash-action-left">
+                        <h2 class="dash-title">Overview</h2>
+                        <span class="dash-subtitle" id="dashDateLabel"></span>
+                        <span class="dash-subtitle" id="dashTimeLabel"
+                            style="margin-left:8px;font-weight:600;color:var(--primary);"></span>
+                    </div>
+                    <div class="dash-action-right">
+                        <!-- Calendar chip -->
+                        <div class="cal-chip" id="calChip">
+                            <span class="cal-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg></span>
+                            <span id="calRange"></span>
+                            <span class="cal-caret">▾</span>
+                        </div>
+                        <!-- Add Expense button -->
+                        <button class="btn btn-primary btn-sm dash-add-btn" id="openDrawerBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" style="margin-right:4px;">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg> Add Expense
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Summary Cards -->
                 <div class="stats-grid">
+                    <!-- Card 1: Wallet (remaining balance) -->
                     <div class="stat-card">
-                        <div class="stat-icon blue">💳</div>
+                        <div class="stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg></div>
                         <div class="stat-info">
-                            <h4>Monthly Allowance</h4>
-                            <div class="stat-value" id="statAllowance">₹0</div>
-                            <div class="stat-label">Total budget this month</div>
+                            <h4>Wallet</h4>
+                            <div class="stat-value" id="statRemaining">₹0</div>
+                            <div class="stat-label">Available to spend</div>
                         </div>
                     </div>
+                    <!-- Card 2: Total Spent -->
                     <div class="stat-card">
-                        <div class="stat-icon red">🛒</div>
+                        <div class="stat-icon red"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="21" r="1" />
+                                <circle cx="20" cy="21" r="1" />
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                            </svg></div>
                         <div class="stat-info">
                             <h4>Total Spent</h4>
                             <div class="stat-value" id="statSpent">₹0</div>
                             <div class="stat-label">Expenses this month</div>
                         </div>
                     </div>
+                    <!-- Card 3: Total Topped Up -->
                     <div class="stat-card">
-                        <div class="stat-icon green">💵</div>
+                        <div class="stat-icon blue"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                <line x1="2" y1="10" x2="22" y2="10" />
+                            </svg></div>
                         <div class="stat-info">
-                            <h4>Remaining Balance</h4>
-                            <div class="stat-value" id="statRemaining">₹0</div>
-                            <div class="stat-label">Available to spend</div>
+                            <h4>Total Topped Up</h4>
+                            <div class="stat-value" id="statAllowance">₹0</div>
+                            <div class="stat-label">Money loaded this month</div>
                         </div>
                     </div>
+                    <!-- Card 4: Savings -->
                     <div class="stat-card">
-                        <div class="stat-icon yellow">🏦</div>
+                        <div class="stat-icon yellow"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                <polyline points="9 22 9 12 15 12 15 22" />
+                            </svg></div>
                         <div class="stat-info">
                             <h4>Savings</h4>
                             <div class="stat-value" id="statSavings">₹0</div>
@@ -105,7 +293,12 @@
                         <h4 style="margin-bottom:20px;">Spending by Category</h4>
                         <div class="category-list" id="categoryBreakdown">
                             <div class="empty-state" style="padding:24px;">
-                                <div class="empty-icon">📂</div>
+                                <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                    </svg></div>
                                 <p>No expenses yet this month</p>
                             </div>
                         </div>
@@ -151,48 +344,8 @@
                     </div>
                 </div>
 
-                <!-- Recent Transactions -->
-                <div class="content-full">
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Recent Transactions</h3>
-                            <a href="transactions.html" class="btn btn-ghost btn-sm">View All →</a>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Category</th>
-                                    <th>Description</th>
-                                    <th style="text-align:right;">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentTransactions">
-                                <tr>
-                                    <td colspan="4">
-                                        <div class="empty-state" style="padding:24px;">
-                                            <div class="empty-icon">📝</div>
-                                            <p>No transactions yet. <a href="add-expense.html"
-                                                    style="color:var(--primary);font-weight:600;">Add your first expense
-                                                    →</a></p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="content-full">
-                    <h4 style="margin-bottom:16px;">Quick Actions</h4>
-                    <div class="quick-actions">
-                        <a href="add-expense.html" class="btn btn-primary">➕ Add Expense</a>
-                        <a href="savings.html" class="btn btn-accent">💰 Add Savings</a>
-                        <a href="profile.html" class="btn btn-outline">👤 Edit Profile</a>
-                        <a href="transactions.html" class="btn btn-ghost">📜 View All Transactions</a>
-                    </div>
-                </div>
+                <!-- Spacer for bottom -->
+                <div style="height: 40px;"></div>
             </div>
         </div>
     </main>
@@ -200,12 +353,9 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Auth guard
-            const authed = await requireAuth();
-            if (!authed) return;
-
+        async function loadDashboardData() {
             try {
                 // Load all data in parallel
                 const [profile, wallet, recentExpenses, categoryData] = await Promise.all([
@@ -220,38 +370,73 @@
                     return;
                 }
 
-                // Update user name
-                document.getElementById('userName').textContent = profile.name.split(' ')[0];
+                // Top-right user bar
+                document.getElementById('topUserName').textContent = profile.name;
+                document.getElementById('userAvatar').textContent = profile.name.charAt(0).toUpperCase();
 
-                // Update stat cards
-                document.getElementById('statAllowance').textContent = '₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
-                document.getElementById('statSpent').textContent = '₹' + wallet.totalSpent.toLocaleString('en-IN');
-                document.getElementById('statRemaining').textContent = '₹' + wallet.remaining.toLocaleString('en-IN');
-                document.getElementById('statSavings').textContent = '₹' + wallet.totalSavings.toLocaleString('en-IN');
+                // Dashboard action bar — date + calendar chip
+                (function () {
+                    const now = new Date();
+                    const fmt = (d, opts) => d.toLocaleDateString('en-IN', opts);
+                    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    const short = { day: 'numeric', month: 'short', year: 'numeric' };
+                    const days = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                    document.getElementById('calRange').textContent =
+                        fmt(start, { day: 'numeric', month: 'short' }) + ' – ' + fmt(end, short);
+                    document.getElementById('dashDateLabel').textContent = fmt(now, days);
 
-                // Budget progress
+                    // Live clock — 12-hour IST format
+                    function updateClock() {
+                        const timeStr = new Date().toLocaleTimeString('en-IN', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Kolkata'
+                        });
+                        document.getElementById('dashTimeLabel').textContent = timeStr.toUpperCase() + ' IST';
+                    }
+                    updateClock();
+                    setInterval(updateClock, 1000);
+                })();
+
+                // Update stat cards — animated from 0
+                countUp(document.getElementById('statAllowance'), wallet.monthlyAllowance, '₹');
+                countUp(document.getElementById('statSpent'), wallet.totalSpent, '₹');
+                countUp(document.getElementById('statRemaining'), wallet.remaining, '₹');
+                countUp(document.getElementById('statSavings'), wallet.totalSavings, '₹');
+
+                // Budget progress — bar animates after brief delay
                 const spentAndSavedPercent = wallet.monthlyAllowance > 0
                     ? Math.min(100, Math.round(((wallet.totalSpent + wallet.totalSavings) / wallet.monthlyAllowance) * 100))
                     : 0;
-                document.getElementById('budgetPercent').textContent = spentAndSavedPercent + '%';
                 const bar = document.getElementById('budgetProgressBar');
-                bar.style.width = spentAndSavedPercent + '%';
+                bar.style.width = '0%'; // reset
                 if (spentAndSavedPercent > 90) bar.classList.add('red');
                 else if (spentAndSavedPercent > 70) bar.classList.add('yellow');
                 else bar.classList.add('green');
-                document.getElementById('budgetTotal').textContent = 'of ₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
+                document.getElementById('budgetTotal').textContent = 'of ₹' + wallet.monthlyAllowance.toLocaleString('en-IN', { minimumFractionDigits: 2 });
 
-                // Summary section
-                document.getElementById('summaryAllowance').textContent = '₹' + wallet.monthlyAllowance.toLocaleString('en-IN');
-                document.getElementById('summarySpent').textContent = '-₹' + wallet.totalSpent.toLocaleString('en-IN');
-                document.getElementById('summarySavings').textContent = '-₹' + wallet.totalSavings.toLocaleString('en-IN');
-                document.getElementById('summaryRemaining').textContent = '₹' + wallet.remaining.toLocaleString('en-IN');
+                // Animate bar width + percent counter
+                document.getElementById('budgetPercent').textContent = '0%';
+                setTimeout(() => {
+                    countUpPercent(document.getElementById('budgetPercent'), spentAndSavedPercent, bar);
+                }, 200);
+
+                // Summary section — animated
+                countUp(document.getElementById('summaryAllowance'), wallet.monthlyAllowance, '₹', '');
+                countUp(document.getElementById('summarySpent'), wallet.totalSpent, '₹', '- ', true);
+                countUp(document.getElementById('summarySavings'), wallet.totalSavings, '₹', '- ', true);
+                countUp(document.getElementById('summaryRemaining'), wallet.remaining, '₹');
 
                 const percentUsed = wallet.monthlyAllowance > 0
                     ? Math.round((wallet.totalSpent / wallet.monthlyAllowance) * 100)
                     : 0;
-                document.getElementById('summaryPercentUsed').textContent = percentUsed + '%';
-                document.getElementById('summaryPercentRemaining').textContent = (100 - percentUsed) + '%';
+                setTimeout(() => {
+                    countUpBare(document.getElementById('summaryPercentUsed'), percentUsed, '%');
+                    countUpBare(document.getElementById('summaryPercentRemaining'), 100 - percentUsed, '%');
+                }, 300);
 
                 // Category breakdown
                 const catContainer = document.getElementById('categoryBreakdown');
@@ -261,29 +446,16 @@
                     catContainer.innerHTML = catEntries.map(([name, amount]) => {
                         const percent = Math.round((amount / maxAmount) * 100);
                         return `
-              <div class="category-item">
-                <div class="cat-icon">${getCategoryIcon(name)}</div>
-                <div class="cat-info">
-                  <div class="cat-name">${name}</div>
-                  <div class="cat-bar"><div class="cat-bar-fill" style="width:${percent}%"></div></div>
-                </div>
-                <div class="cat-amount">₹${amount.toLocaleString('en-IN')}</div>
-              </div>
-            `;
+                        <div class="category-item">
+                            <div class="cat-icon">${getCategoryIcon(name)}</div>
+                            <div class="cat-info">
+                            <div class="cat-name">${name}</div>
+                            <div class="cat-bar"><div class="cat-bar-fill" style="width:${percent}%"></div></div>
+                            </div>
+                        <div class="cat-amount">₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                        </div>
+                        `;
                     }).join('');
-                }
-
-                // Recent transactions
-                const tbody = document.getElementById('recentTransactions');
-                if (recentExpenses.length > 0) {
-                    tbody.innerHTML = recentExpenses.map(exp => `
-            <tr>
-              <td>${new Date(exp.expense_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
-              <td><span class="category-badge">${getCategoryIcon(exp.category_name)} ${exp.category_name}</span></td>
-              <td>${exp.description || '—'}</td>
-              <td style="text-align:right;" class="amount-negative">-₹${parseFloat(exp.amount).toLocaleString('en-IN')}</td>
-            </tr>
-          `).join('');
                 }
 
                 // Show content, hide loader
@@ -294,12 +466,13 @@
                 console.error('Dashboard load error:', err);
                 document.getElementById('pageLoader').innerHTML = '<p style="color:var(--danger);">Error loading dashboard. Please refresh.</p>';
             }
-        });
+        }
 
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await logout();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Auth guard
+            const authed = await requireAuth();
+            if (!authed) return;
+            loadDashboardData();
         });
 
         // Category icon helper
@@ -310,6 +483,205 @@
                 'Recharge': '📱', 'Stationary': '✏️'
             };
             return icons[name] || '📦';
+        }
+
+        // ── Smooth count-up helpers ─────────────────────────────────
+        function countUp(el, target, prefix = '₹', sign = '', sigFirst = false, duration = 1200) {
+            if (!el) return;
+            // Extract current numeric value from text
+            const currentText = el.textContent.replace(/[^\d.-]/g, '');
+            const startVal = parseFloat(currentText) || 0;
+
+            const start = performance.now();
+            function step(now) {
+                const p = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                const current = startVal + ease * (target - startVal);
+
+                // Smart formatting: hide trailing zeros, max 2 decimals
+                const formatted = current.toLocaleString('en-IN', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+
+                // Tiered typography: make decimals smaller
+                let finalHTML = '';
+                if (formatted.includes('.')) {
+                    const parts = formatted.split('.');
+                    const mainPart = parts[0];
+                    const decimalPart = parts[1];
+                    finalHTML = `${sigFirst ? sign + prefix : prefix}${mainPart}<span class="decimal-small">.${decimalPart}</span>`;
+                } else {
+                    finalHTML = sigFirst ? sign + prefix + formatted : prefix + formatted;
+                }
+
+                el.innerHTML = finalHTML;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function countUpBare(el, target, suffix = '', duration = 1200) {
+            if (!el) return;
+            const currentText = el.textContent.replace(/[^\d.-]/g, '');
+            const startVal = parseFloat(currentText) || 0;
+
+            const start = performance.now();
+            function step(now) {
+                const p = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                const current = startVal + ease * (target - startVal);
+                el.textContent = Math.round(current) + suffix;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function countUpPercent(el, target, barEl, duration = 1200) {
+            if (!el) return;
+            const currentText = el.textContent.replace(/[^\d.-]/g, '');
+            const startVal = parseFloat(currentText) || 0;
+
+            const start = performance.now();
+            function step(now) {
+                const p = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                const cur = startVal + ease * (target - startVal);
+                el.textContent = Math.round(cur) + '%';
+                if (barEl) barEl.style.width = cur + '%';
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+
+        // ── Side Drawer Logic ──────────────────────────────────────
+        const sideDrawer = document.getElementById('sideDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        const openDrawerBtn = document.getElementById('openDrawerBtn');
+        const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+        const expenseForm = document.getElementById('drawerExpenseForm');
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+        const drawerCategorySelect = document.getElementById('drawerCategory');
+        const customCategoryGroup = document.getElementById('customCategoryGroup');
+
+        function openDrawer() {
+            sideDrawer.classList.add('active');
+            drawerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            loadDrawerCategories();
+            document.getElementById('drawerExpenseDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function closeDrawer() {
+            sideDrawer.classList.remove('active');
+            drawerOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            expenseForm.reset();
+            hideDrawerAlerts();
+            customCategoryGroup.style.display = 'none';
+        }
+
+        openDrawerBtn.addEventListener('click', openDrawer);
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+        drawerOverlay.addEventListener('click', closeDrawer);
+
+        async function loadDrawerCategories() {
+            if (drawerCategorySelect.options.length > 1) return;
+            try {
+                const categories = await getCategories();
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = `${cat.icon} ${cat.name}`;
+                    opt.dataset.name = cat.name;
+                    drawerCategorySelect.appendChild(opt);
+                });
+                const othersOpt = document.createElement('option');
+                othersOpt.value = 'others';
+                othersOpt.textContent = '📦 Others (Custom)';
+                drawerCategorySelect.appendChild(othersOpt);
+            } catch (e) { console.error('Error loading categories:', e); }
+        }
+
+        drawerCategorySelect.addEventListener('change', (e) => {
+            if (e.target.value === 'others') {
+                customCategoryGroup.style.display = 'block';
+                document.getElementById('drawerCustomCategory').required = true;
+            } else {
+                customCategoryGroup.style.display = 'none';
+                document.getElementById('drawerCustomCategory').required = false;
+            }
+        });
+
+        expenseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideDrawerAlerts();
+
+            const amount = document.getElementById('drawerAmount').value;
+            const categoryValue = drawerCategorySelect.value;
+            const description = document.getElementById('drawerDescription').value.trim();
+            const expenseDate = document.getElementById('drawerExpenseDate').value;
+
+            if (!amount || !categoryValue || !expenseDate) {
+                showDrawerError('Please fill in all required fields.');
+                return;
+            }
+
+            let categoryId = categoryValue;
+            let categoryName = '';
+
+            addExpenseBtn.disabled = true;
+            addExpenseBtn.innerHTML = '<div class="spinner"></div> Adding...';
+
+            try {
+                if (categoryValue === 'others') {
+                    const customName = document.getElementById('drawerCustomCategory').value.trim();
+                    const newCat = await addCategory(customName);
+                    categoryId = newCat.id;
+                    categoryName = customName;
+                } else {
+                    categoryName = drawerCategorySelect.options[drawerCategorySelect.selectedIndex].dataset.name;
+                }
+
+                await addExpense(amount, categoryId, categoryName, description, expenseDate);
+                showDrawerSuccess('Expense added successfully!');
+
+                // Refresh dashboard stats immediately
+                loadDashboardData();
+
+                // Keep drawer open but reset form for next entry
+                setTimeout(() => {
+                    expenseForm.reset();
+                    customCategoryGroup.style.display = 'none';
+                    addExpenseBtn.disabled = false;
+                    addExpenseBtn.textContent = 'Add Another Expense';
+                    // Keep success message for 3 seconds then hide
+                    setTimeout(() => {
+                        document.getElementById('drawerSuccess').style.display = 'none';
+                    }, 3000);
+                }, 800);
+
+            } catch (err) {
+                showDrawerError(err.message || 'Failed to add expense.');
+                addExpenseBtn.disabled = false;
+                addExpenseBtn.textContent = 'Add Expense';
+            }
+        });
+
+        function showDrawerError(msg) {
+            document.getElementById('drawerErrorText').textContent = msg;
+            document.getElementById('drawerError').style.display = 'flex';
+        }
+
+        function showDrawerSuccess(msg) {
+            document.getElementById('drawerSuccessText').textContent = msg;
+            document.getElementById('drawerSuccess').style.display = 'flex';
+        }
+
+        function hideDrawerAlerts() {
+            document.getElementById('drawerError').style.display = 'none';
+            document.getElementById('drawerSuccess').style.display = 'none';
         }
     </script>
 </body>
