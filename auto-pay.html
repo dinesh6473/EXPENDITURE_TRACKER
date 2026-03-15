@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Pay – ExpenseIQ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ======= APP NAVIGATION ======= -->
+    <nav class="app-nav" id="appNav">
+        <div class="container">
+            <!-- Hamburger -->
+            <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Brand (visible only when expanded) -->
+            <a href="dashboard.html" class="navbar-logo">
+                <span class="brand-text">ExpenseIQ</span>
+            </a>
+
+            <div class="app-nav-links">
+                <a href="dashboard.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg></span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="analytics.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg></span>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                <a href="savings.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg></span>
+                    <span class="nav-text">Savings</span>
+                </a>
+                <a href="auto-pay.html" class="active">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 2l4 4-4 4" />
+                            <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                            <path d="M7 22l-4-4 4-4" />
+                            <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                        </svg></span>
+                    <span class="nav-text">Auto Pay</span>
+                </a>
+                <a href="history.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></span>
+                    <span class="nav-text">History</span>
+                </a>
+                <a href="profile.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span>
+                    <span class="nav-text">Profile</span>
+                </a>
+                <div style="flex:1;"></div>
+                <a href="#" class="logout-link" id="logoutBtn">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg></span>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======= TOP USER BAR ======= -->
+    <header class="top-user-bar">
+        <div class="top-user-info">
+            <a href="profile.html" title="Go to Profile">
+                <div class="top-user-avatar" id="userAvatar">D</div>
+            </a>
+            <span class="top-user-name" id="topUserName">Student</span>
+        </div>
+    </header>
+
+    <!-- ======= PAGE CONTENT ======= -->
+    <main class="page-content">
+        <div class="container">
+            <!-- ======= SIDE DRAWER (AUTO PAY) ======= -->
+            <div class="side-drawer-overlay" id="drawerOverlay"></div>
+            <div class="side-drawer" id="autoPayDrawer">
+                <div class="side-drawer-header">
+                    <h3>Schedule Auto Pay</h3>
+                    <button class="side-drawer-close" id="closeAutoPayDrawerBtn">✕</button>
+                </div>
+                <div class="side-drawer-body">
+                    <div class="alert alert-error" id="autoPayDrawerError" style="display:none; margin-bottom:20px;">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg></span> <span id="autoPayDrawerErrorText"></span>
+                    </div>
+                    <div class="alert alert-success" id="autoPayDrawerSuccess"
+                        style="display:none; margin-bottom:20px;">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg></span> <span id="autoPayDrawerSuccessText"></span>
+                    </div>
+
+                    <form id="autoPayDrawerForm">
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="autoPayAmount" class="form-control" placeholder="0.00" required
+                                min="1" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="autoPayCategory" class="form-control" required>
+                                <option value="">Select a category</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="autoPayCustomCategoryGroup" style="display:none;">
+                            <label>Custom Category Name</label>
+                            <input type="text" id="autoPayCustomCategory" class="form-control"
+                                placeholder="e.g., Netflix, Gym">
+                        </div>
+                        <div class="form-group">
+                            <label>Description (Optional)</label>
+                            <input type="text" id="autoPayDescription" class="form-control"
+                                placeholder="What is this for?">
+                        </div>
+                        <div class="form-group">
+                            <label>Frequency</label>
+                            <select id="autoPayFrequency" class="form-control" required>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Yearly">Yearly</option>
+                                <option value="Custom">Custom Days</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="autoPayCustomDaysGroup" style="display:none;">
+                            <label>Every X Days</label>
+                            <input type="number" id="autoPayCustomDays" class="form-control" min="1"
+                                placeholder="e.g., 14">
+                        </div>
+                        <div class="form-group">
+                            <label>Time of day to execute</label>
+                            <input type="time" id="autoPayExecuteTime" class="form-control" value="05:00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Date (Until when?)</label>
+                            <input type="date" id="autoPayEndDate" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="side-drawer-footer">
+                    <button type="submit" form="autoPayDrawerForm" class="btn btn-primary btn-full btn-lg"
+                        id="scheduleAutoPayBtn">
+                        Schedule Auto Pay
+                    </button>
+                </div>
+            </div>
+
+            <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h1>Auto Pay</h1>
+                    <p>Manage your recurring payments and subscriptions.</p>
+                </div>
+                <button class="btn btn-primary" id="openAutoPayBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-right:5px;vertical-align:middle;">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg> Schedule Auto Pay
+                </button>
+            </div>
+
+            <!-- Page Loader -->
+            <div class="page-loader" id="pageLoader">
+                <div class="spinner" style="width:40px;height:40px;border-width:3px;"></div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="autoPayContent" style="display:none;">
+                <!-- Summary Stats -->
+                <div class="stats-grid" style="margin-bottom: 28px;">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg></div>
+                        <div class="stat-info">
+                            <h4>Active Schedules</h4>
+                            <div class="stat-value" id="statActiveCount">0</div>
+                            <div class="stat-label">Recurring payments</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg></div>
+                        <div class="stat-info">
+                            <h4>Monthly Auto-out</h4>
+                            <div class="stat-value" id="statMonthlyAmount">₹0</div>
+                            <div class="stat-label">Estimated monthly cost</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 id="scheduleCount">0 Schedules</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Frequency</th>
+                                <th>Next Execution</th>
+                                <th>Time</th>
+                                <th style="text-align:right;">Amount</th>
+                                <th style="width:40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleList">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authed = await requireAuth();
+            if (!authed) return;
+            await loadAutoPayments();
+        });
+
+        async function loadAutoPayments() {
+            try {
+                const schedules = await getAutoPayments();
+                const tbody = document.getElementById('scheduleList');
+                const countText = document.getElementById('scheduleCount');
+                const statCount = document.getElementById('statActiveCount');
+                const statAmount = document.getElementById('statMonthlyAmount');
+
+                countText.textContent = schedules.length + ' Schedule' + (schedules.length !== 1 ? 's' : '');
+                statCount.textContent = schedules.filter(s => s.is_active).length;
+
+                // Calculate estimated monthly amount
+                let monthlyTotal = 0;
+                schedules.filter(s => s.is_active).forEach(s => {
+                    const amt = parseFloat(s.amount);
+                    if (s.frequency === 'Monthly') monthlyTotal += amt;
+                    else if (s.frequency === 'Daily') monthlyTotal += (amt * 30);
+                    else if (s.frequency === 'Yearly') monthlyTotal += (amt / 12);
+                    else if (s.frequency === 'Custom' && s.custom_days) monthlyTotal += (amt * (30 / s.custom_days));
+                });
+                statAmount.textContent = '₹' + monthlyTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+                if (schedules.length === 0) {
+                    tbody.innerHTML = `
+                        <tr><td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-icon"><svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></div>
+                                <p>No auto payments scheduled yet. <a href="#" onclick="openAutoPay(); return false;" style="color:var(--primary);font-weight:600;">Schedule your first one →</a></p>
+                            </div>
+                        </td></tr>`;
+                } else {
+                    tbody.innerHTML = schedules.map(s => {
+                        const nextExec = new Date(s.next_execution_at);
+                        const dateStr = nextExec.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                        const freqLabel = s.frequency === 'Custom' ? `Every ${s.custom_days} days` : s.frequency;
+
+                        return `
+                            <tr>
+                                <td>
+                                    <div style="display:flex; flex-direction:column; gap:2px;">
+                                        <span class="category-badge">${getCategoryIcon(s.category_name)} ${s.category_name}</span>
+                                        <small style="color:var(--gray-400); margin-left:4px;">${s.description || 'No description'}</small>
+                                    </div>
+                                </td>
+                                <td style="font-weight:500;">${freqLabel}</td>
+                                <td>${dateStr}</td>
+                                <td style="color:var(--gray-500);">${s.execute_time}</td>
+                                <td style="text-align:right; font-weight:700;">₹${parseFloat(s.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                <td>
+                                    <button class="btn-delete" onclick="handleDeleteAutoPay('${s.id}')" title="Delete"><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 6 5 6 21 6'/><path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2'/></svg></button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                document.getElementById('pageLoader').style.display = 'none';
+                document.getElementById('autoPayContent').style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('pageLoader').innerHTML = '<p style="color:var(--danger);">Error loading auto payments.</p>';
+            }
+        }
+
+        async function handleDeleteAutoPay(id) {
+            if (!confirm('Are you sure you want to delete this auto payment schedule?')) return;
+            try {
+                await deleteAutoPayment(id);
+                await loadAutoPayments();
+            } catch (err) {
+                alert('Failed to delete: ' + err.message);
+            }
+        }
+
+        function getCategoryIcon(name) {
+            const icons = { 'Food': '🍔', 'Travel': '🚌', 'Books': '📚', 'Entertainment': '🎮', 'Hostel / Rent': '🏠', 'Recharge': '📱', 'Stationary': '✏️' };
+            return icons[name] || '📦';
+        }
+
+        // --- Side Drawer Logic ---
+        const autoPayDrawer = document.getElementById('autoPayDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        const openAutoPayBtn = document.getElementById('openAutoPayBtn');
+        const closeAutoPayBtn = document.getElementById('closeAutoPayDrawerBtn');
+        const autoPayForm = document.getElementById('autoPayDrawerForm');
+        const scheduleAutoPayBtn = document.getElementById('scheduleAutoPayBtn');
+        const autoPayCategorySelect = document.getElementById('autoPayCategory');
+        const autoPayCustomCategoryGroup = document.getElementById('autoPayCustomCategoryGroup');
+        const autoPayFrequencySelect = document.getElementById('autoPayFrequency');
+        const autoPayCustomDaysGroup = document.getElementById('autoPayCustomDaysGroup');
+
+        function openAutoPay() {
+            autoPayDrawer.classList.add('active');
+            drawerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            loadAutoPayCategories();
+            const nextYear = new Date();
+            nextYear.setFullYear(nextYear.getFullYear() + 1);
+            document.getElementById('autoPayEndDate').value = nextYear.toISOString().split('T')[0];
+        }
+
+        function closeAutoPay() {
+            autoPayDrawer.classList.remove('active');
+            drawerOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            autoPayForm.reset();
+            hideAutoPayAlerts();
+            autoPayCustomCategoryGroup.style.display = 'none';
+            autoPayCustomDaysGroup.style.display = 'none';
+        }
+
+        openAutoPayBtn.addEventListener('click', openAutoPay);
+        closeAutoPayBtn.addEventListener('click', closeAutoPay);
+        drawerOverlay.addEventListener('click', closeAutoPay);
+
+        async function loadAutoPayCategories() {
+            if (autoPayCategorySelect.options.length > 1) return;
+            try {
+                const categories = await getCategories();
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = `${cat.icon} ${cat.name}`;
+                    opt.dataset.name = cat.name;
+                    autoPayCategorySelect.appendChild(opt);
+                });
+                const othersOpt = document.createElement('option');
+                othersOpt.value = 'others';
+                othersOpt.textContent = '📦 Others (Custom)';
+                autoPayCategorySelect.appendChild(othersOpt);
+            } catch (e) { console.error('Error loading categories:', e); }
+        }
+
+        autoPayCategorySelect.addEventListener('change', (e) => {
+            if (e.target.value === 'others') {
+                autoPayCustomCategoryGroup.style.display = 'block';
+                document.getElementById('autoPayCustomCategory').required = true;
+            } else {
+                autoPayCustomCategoryGroup.style.display = 'none';
+                document.getElementById('autoPayCustomCategory').required = false;
+            }
+        });
+
+        autoPayFrequencySelect.addEventListener('change', (e) => {
+            if (e.target.value === 'Custom') {
+                autoPayCustomDaysGroup.style.display = 'block';
+                document.getElementById('autoPayCustomDays').required = true;
+            } else {
+                autoPayCustomDaysGroup.style.display = 'none';
+                document.getElementById('autoPayCustomDays').required = false;
+            }
+        });
+
+        autoPayForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAutoPayAlerts();
+
+            const amount = document.getElementById('autoPayAmount').value;
+            const categoryValue = autoPayCategorySelect.value;
+            const description = document.getElementById('autoPayDescription').value.trim();
+            const frequency = autoPayFrequencySelect.value;
+            const customDays = document.getElementById('autoPayCustomDays').value;
+            const executeTime = document.getElementById('autoPayExecuteTime').value;
+            const endDate = document.getElementById('autoPayEndDate').value;
+
+            if (!amount || !categoryValue || !frequency || !executeTime || !endDate) {
+                showAutoPayError('Please fill in all required fields.');
+                return;
+            }
+
+            let categoryId = categoryValue;
+            let categoryName = '';
+
+            scheduleAutoPayBtn.disabled = true;
+            scheduleAutoPayBtn.innerHTML = '<div class="spinner"></div> Scheduling...';
+
+            try {
+                if (categoryValue === 'others') {
+                    const customName = document.getElementById('autoPayCustomCategory').value.trim();
+                    const newCat = await addCategory(customName);
+                    categoryId = newCat.id;
+                    categoryName = customName;
+                } else {
+                    categoryName = autoPayCategorySelect.options[autoPayCategorySelect.selectedIndex].dataset.name;
+                }
+
+                // Calculate next execution at
+                const todayStr = new Date().toISOString().split('T')[0];
+                let nextExecutionDate = new Date(`${todayStr}T${executeTime}:00+05:30`);
+                if (nextExecutionDate < new Date()) {
+                    if (frequency === 'Daily') nextExecutionDate.setDate(nextExecutionDate.getDate() + 1);
+                    else if (frequency === 'Monthly') nextExecutionDate.setMonth(nextExecutionDate.getMonth() + 1);
+                    else if (frequency === 'Yearly') nextExecutionDate.setFullYear(nextExecutionDate.getFullYear() + 1);
+                    else if (frequency === 'Custom') nextExecutionDate.setDate(nextExecutionDate.getDate() + parseInt(customDays));
+                }
+                const nextExecutionAt = nextExecutionDate.toISOString();
+
+                await addAutoPayment(amount, categoryId, categoryName, description, frequency, customDays || null, executeTime, endDate, nextExecutionAt);
+                showAutoPaySuccess('Auto Payment Scheduled!');
+
+                setTimeout(() => {
+                    closeAutoPay();
+                    scheduleAutoPayBtn.disabled = false;
+                    scheduleAutoPayBtn.textContent = 'Schedule Auto Pay';
+                    loadAutoPayments();
+                }, 1500);
+
+            } catch (err) {
+                showAutoPayError(err.message || 'Failed to schedule.');
+                scheduleAutoPayBtn.disabled = false;
+                scheduleAutoPayBtn.textContent = 'Schedule Auto Pay';
+            }
+        });
+
+        function showAutoPayError(msg) {
+            document.getElementById('autoPayDrawerErrorText').textContent = msg;
+            document.getElementById('autoPayDrawerError').style.display = 'flex';
+        }
+
+        function showAutoPaySuccess(msg) {
+            document.getElementById('autoPayDrawerSuccessText').textContent = msg;
+            document.getElementById('autoPayDrawerSuccess').style.display = 'flex';
+        }
+
+        function hideAutoPayAlerts() {
+            document.getElementById('autoPayDrawerError').style.display = 'none';
+            document.getElementById('autoPayDrawerSuccess').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

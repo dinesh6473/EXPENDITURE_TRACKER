@@ -57,6 +57,17 @@
                         </svg></span>
                     <span class="nav-text">Savings</span>
                 </a>
+                <a href="auto-pay.html">
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 2l4 4-4 4" />
+                            <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                            <path d="M7 22l-4-4 4-4" />
+                            <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                        </svg></span>
+                    <span class="nav-text">Auto Pay</span>
+                </a>
                 <a href="history.html">
                     <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -170,6 +181,86 @@
                 </div>
             </div>
 
+            <!-- ======= SIDE DRAWER (AUTO PAY) ======= -->
+            <div class="side-drawer" id="autoPayDrawer">
+                <div class="side-drawer-header">
+                    <h3>Schedule Auto Pay</h3>
+                    <button class="side-drawer-close" id="closeAutoPayDrawerBtn">✕</button>
+                </div>
+                <div class="side-drawer-body">
+                    <div class="alert alert-error" id="autoPayDrawerError" style="display:none; margin-bottom:20px;">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg></span> <span id="autoPayDrawerErrorText"></span>
+                    </div>
+                    <div class="alert alert-success" id="autoPayDrawerSuccess"
+                        style="display:none; margin-bottom:20px;">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg></span> <span id="autoPayDrawerSuccessText"></span>
+                    </div>
+
+                    <form id="autoPayDrawerForm">
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="autoPayAmount" class="form-control" placeholder="0.00" required
+                                min="1" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="autoPayCategory" class="form-control" required>
+                                <option value="">Select a category</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="autoPayCustomCategoryGroup" style="display:none;">
+                            <label>Custom Category Name</label>
+                            <input type="text" id="autoPayCustomCategory" class="form-control"
+                                placeholder="e.g., Netflix, Gym">
+                        </div>
+                        <div class="form-group">
+                            <label>Description (Optional)</label>
+                            <input type="text" id="autoPayDescription" class="form-control"
+                                placeholder="What is this for?">
+                        </div>
+                        <div class="form-group">
+                            <label>Frequency</label>
+                            <select id="autoPayFrequency" class="form-control" required>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Yearly">Yearly</option>
+                                <option value="Custom">Custom Days</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="autoPayCustomDaysGroup" style="display:none;">
+                            <label>Every X Days</label>
+                            <input type="number" id="autoPayCustomDays" class="form-control" min="1"
+                                placeholder="e.g., 14">
+                        </div>
+                        <div class="form-group">
+                            <label>Time of day to execute</label>
+                            <input type="time" id="autoPayExecuteTime" class="form-control" value="05:00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Date (Until when?)</label>
+                            <input type="date" id="autoPayEndDate" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="side-drawer-footer">
+                    <button type="submit" form="autoPayDrawerForm" class="btn btn-primary btn-full btn-lg"
+                        id="scheduleAutoPayBtn">
+                        Schedule Auto Pay
+                    </button>
+                </div>
+            </div>
+
             <!-- Main Content (hidden until loaded) -->
             <div id="dashboardContent" style="display:none;">
                 <!-- Dashboard Action Bar -->
@@ -194,6 +285,16 @@
                             <span id="calRange"></span>
                             <span class="cal-caret">▾</span>
                         </div>
+                        <!-- Auto Pay button -->
+                        <button class="btn btn-outline btn-sm dash-add-btn" id="openAutoPayBtn"
+                            style="margin-right: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" style="margin-right:4px;">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg> Auto Pay
+                        </button>
                         <!-- Add Expense button -->
                         <button class="btn btn-primary btn-sm dash-add-btn" id="openDrawerBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
@@ -584,7 +685,11 @@
 
         openDrawerBtn.addEventListener('click', openDrawer);
         closeDrawerBtn.addEventListener('click', closeDrawer);
-        drawerOverlay.addEventListener('click', closeDrawer);
+
+        drawerOverlay.addEventListener('click', () => {
+            if (sideDrawer.classList.contains('active')) closeDrawer();
+            if (typeof autoPayDrawer !== 'undefined' && autoPayDrawer.classList.contains('active')) closeAutoPay();
+        });
 
         async function loadDrawerCategories() {
             if (drawerCategorySelect.options.length > 1) return;
@@ -682,6 +787,160 @@
         function hideDrawerAlerts() {
             document.getElementById('drawerError').style.display = 'none';
             document.getElementById('drawerSuccess').style.display = 'none';
+        }
+
+        // ── Auto Pay Drawer Logic ──────────────────────────────────────
+        const autoPayDrawer = document.getElementById('autoPayDrawer');
+        const openAutoPayBtn = document.getElementById('openAutoPayBtn');
+        const closeAutoPayBtn = document.getElementById('closeAutoPayDrawerBtn');
+        const autoPayForm = document.getElementById('autoPayDrawerForm');
+        const scheduleAutoPayBtn = document.getElementById('scheduleAutoPayBtn');
+        const autoPayCategorySelect = document.getElementById('autoPayCategory');
+        const autoPayCustomCategoryGroup = document.getElementById('autoPayCustomCategoryGroup');
+        const autoPayFrequencySelect = document.getElementById('autoPayFrequency');
+        const autoPayCustomDaysGroup = document.getElementById('autoPayCustomDaysGroup');
+
+        function openAutoPay() {
+            autoPayDrawer.classList.add('active');
+            drawerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            loadAutoPayCategories();
+
+            // Set end date to 1 year from now by default
+            const nextYear = new Date();
+            nextYear.setFullYear(nextYear.getFullYear() + 1);
+            document.getElementById('autoPayEndDate').value = nextYear.toISOString().split('T')[0];
+        }
+
+        function closeAutoPay() {
+            autoPayDrawer.classList.remove('active');
+            drawerOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            autoPayForm.reset();
+            hideAutoPayAlerts();
+            autoPayCustomCategoryGroup.style.display = 'none';
+            autoPayCustomDaysGroup.style.display = 'none';
+        }
+
+        if (openAutoPayBtn) openAutoPayBtn.addEventListener('click', openAutoPay);
+        closeAutoPayBtn.addEventListener('click', closeAutoPay);
+
+        async function loadAutoPayCategories() {
+            if (autoPayCategorySelect.options.length > 1) return;
+            try {
+                const categories = await getCategories();
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = `${cat.icon} ${cat.name}`;
+                    opt.dataset.name = cat.name;
+                    autoPayCategorySelect.appendChild(opt);
+                });
+                const othersOpt = document.createElement('option');
+                othersOpt.value = 'others';
+                othersOpt.textContent = '📦 Others (Custom)';
+                autoPayCategorySelect.appendChild(othersOpt);
+            } catch (e) { console.error('Error loading categories:', e); }
+        }
+
+        autoPayCategorySelect.addEventListener('change', (e) => {
+            if (e.target.value === 'others') {
+                autoPayCustomCategoryGroup.style.display = 'block';
+                document.getElementById('autoPayCustomCategory').required = true;
+            } else {
+                autoPayCustomCategoryGroup.style.display = 'none';
+                document.getElementById('autoPayCustomCategory').required = false;
+            }
+        });
+
+        autoPayFrequencySelect.addEventListener('change', (e) => {
+            if (e.target.value === 'Custom') {
+                autoPayCustomDaysGroup.style.display = 'block';
+                document.getElementById('autoPayCustomDays').required = true;
+            } else {
+                autoPayCustomDaysGroup.style.display = 'none';
+                document.getElementById('autoPayCustomDays').required = false;
+            }
+        });
+
+        autoPayForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAutoPayAlerts();
+
+            const amount = document.getElementById('autoPayAmount').value;
+            const categoryValue = autoPayCategorySelect.value;
+            const description = document.getElementById('autoPayDescription').value.trim();
+            const frequency = autoPayFrequencySelect.value;
+            const customDays = document.getElementById('autoPayCustomDays').value;
+            const executeTime = document.getElementById('autoPayExecuteTime').value;
+            const endDate = document.getElementById('autoPayEndDate').value;
+
+            if (!amount || !categoryValue || !frequency || !executeTime || !endDate) {
+                showAutoPayError('Please fill in all required fields.');
+                return;
+            }
+            if (frequency === 'Custom' && !customDays) {
+                showAutoPayError('Please specify custom days.');
+                return;
+            }
+
+            let categoryId = categoryValue;
+            let categoryName = '';
+
+            scheduleAutoPayBtn.disabled = true;
+            scheduleAutoPayBtn.innerHTML = '<div class="spinner"></div> Scheduling...';
+
+            try {
+                if (categoryValue === 'others') {
+                    const customName = document.getElementById('autoPayCustomCategory').value.trim();
+                    const newCat = await addCategory(customName);
+                    categoryId = newCat.id;
+                    categoryName = customName;
+                } else {
+                    categoryName = autoPayCategorySelect.options[autoPayCategorySelect.selectedIndex].dataset.name;
+                }
+
+                // Calculate next execution at
+                const todayStr = new Date().toISOString().split('T')[0];
+                let nextExecutionDate = new Date(`${todayStr}T${executeTime}:00+05:30`);
+                if (nextExecutionDate < new Date()) {
+                    // Start next cycle if time is already past for today
+                    if (frequency === 'Daily') nextExecutionDate.setDate(nextExecutionDate.getDate() + 1);
+                    else if (frequency === 'Monthly') nextExecutionDate.setMonth(nextExecutionDate.getMonth() + 1);
+                    else if (frequency === 'Yearly') nextExecutionDate.setFullYear(nextExecutionDate.getFullYear() + 1);
+                    else if (frequency === 'Custom') nextExecutionDate.setDate(nextExecutionDate.getDate() + parseInt(customDays));
+                }
+                const nextExecutionAt = nextExecutionDate.toISOString();
+
+                await addAutoPayment(amount, categoryId, categoryName, description, frequency, customDays || null, executeTime, endDate, nextExecutionAt);
+                showAutoPaySuccess('Auto Payment Scheduled!');
+
+                setTimeout(() => {
+                    closeAutoPay();
+                    scheduleAutoPayBtn.disabled = false;
+                    scheduleAutoPayBtn.textContent = 'Schedule Auto Pay';
+                }, 1500);
+
+            } catch (err) {
+                showAutoPayError(err.message || 'Failed to schedule auto payment.');
+                scheduleAutoPayBtn.disabled = false;
+                scheduleAutoPayBtn.textContent = 'Schedule Auto Pay';
+            }
+        });
+
+        function showAutoPayError(msg) {
+            document.getElementById('autoPayDrawerErrorText').textContent = msg;
+            document.getElementById('autoPayDrawerError').style.display = 'flex';
+        }
+
+        function showAutoPaySuccess(msg) {
+            document.getElementById('autoPayDrawerSuccessText').textContent = msg;
+            document.getElementById('autoPayDrawerSuccess').style.display = 'flex';
+        }
+
+        function hideAutoPayAlerts() {
+            document.getElementById('autoPayDrawerError').style.display = 'none';
+            document.getElementById('autoPayDrawerSuccess').style.display = 'none';
         }
     </script>
 </body>

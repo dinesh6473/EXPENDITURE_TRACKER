@@ -204,3 +204,54 @@ async function getWalletSummary() {
         remaining: Math.max(0, remaining)
     };
 }
+
+// ---- AUTO PAYMENTS ----
+
+async function addAutoPayment(amount, categoryId, categoryName, description, frequency, customDays, executeTime, endDate, nextExecutionAt) {
+    const user = await getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const payload = {
+        user_id: user.id,
+        amount: parseFloat(amount),
+        category_id: categoryId,
+        category_name: categoryName,
+        description: description || '',
+        frequency,
+        execute_time: executeTime,
+        end_date: endDate,
+        next_execution_at: nextExecutionAt,
+        is_active: true
+    };
+
+    if (frequency === 'Custom' && customDays) {
+        payload.custom_days = parseInt(customDays);
+    }
+
+    const { data, error } = await _supabase.from('auto_payments').insert(payload).select().single();
+
+    if (error) throw error;
+    return data;
+}
+
+async function getAutoPayments() {
+    const user = await getUser();
+    if (!user) return [];
+
+    const { data, error } = await _supabase
+        .from('auto_payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+}
+async function deleteAutoPayment(id) {
+    const { error } = await _supabase
+        .from('auto_payments')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
+}

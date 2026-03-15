@@ -46,6 +46,18 @@ async function login(email, password) {
     return data;
 }
 
+// Google Sign In
+async function signInWithGoogle() {
+    const { data, error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin + '/dashboard.html'
+        }
+    });
+    if (error) throw error;
+    return data;
+}
+
 // Logout
 async function logout() {
     const { error } = await _supabase.auth.signOut();
