@@ -2,6 +2,14 @@
 // AUTH MODULE - Handles all authentication logic
 // ============================================
 
+function assertNonNegativeProfileAmount(amount, fieldLabel = 'Amount') {
+    const parsedAmount = parseFloat(amount);
+    if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
+        throw new Error(`${fieldLabel} cannot be negative.`);
+    }
+    return parsedAmount;
+}
+
 // Check if user is logged in
 async function getUser() {
     const { data: { user } } = await _supabase.auth.getUser();
@@ -17,6 +25,7 @@ async function getSession() {
 // Sign Up
 async function signUp(email, password, name, monthlyAllowance, age, gender, currentlyPursuing, pursuingDetail) {
     // Create auth user — profile is auto-created via database trigger
+    assertNonNegativeProfileAmount(monthlyAllowance, 'Wallet amount');
     const { data, error } = await _supabase.auth.signUp({
         email,
         password,
@@ -84,6 +93,18 @@ async function getUserProfile() {
 async function updateProfile(updates) {
     const user = await getUser();
     if (!user) throw new Error('Not authenticated');
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'monthly_allowance') && updates.monthly_allowance !== null) {
+        updates.monthly_allowance = assertNonNegativeProfileAmount(updates.monthly_allowance, 'Wallet balance');
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'age') && updates.age !== null) {
+        const parsedAge = parseInt(updates.age, 10);
+        if (!Number.isInteger(parsedAge) || parsedAge < 5 || parsedAge > 100) {
+            throw new Error('Age must be between 5 and 100.');
+        }
+        updates.age = parsedAge;
+    }
 
     const { data, error } = await _supabase
         .from('profiles')

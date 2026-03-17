@@ -409,15 +409,7 @@
             btn.innerHTML = '<div class="spinner"></div> Adding...';
 
             try {
-                // Get current allowance then add top-up on top
-                const profile = await getUserProfile();
-                const currentAllowance = parseFloat(profile.monthly_allowance) || 0;
-                const newTotal = currentAllowance + amount;
-
-                await updateProfile({ monthly_allowance: newTotal });
-
-                // Log the top-up transaction for history
-                await addWalletTransaction(amount, 'Wallet top-up');
+                const newTotal = await topUpWallet(amount, 'Wallet top-up');
 
                 document.getElementById('walletTopupSuccessText').textContent =
                     `₹${amount.toLocaleString('en-IN')} added! New wallet balance: ₹${newTotal.toLocaleString('en-IN')}`;

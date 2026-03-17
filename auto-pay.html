@@ -450,6 +450,17 @@
                 showAutoPayError('Please fill in all required fields.');
                 return;
             }
+            if (frequency === 'Custom' && !customDays) {
+                showAutoPayError('Please specify custom days.');
+                return;
+            }
+
+            try {
+                validateAutoPaymentInput(amount, frequency, customDays, endDate);
+            } catch (err) {
+                showAutoPayError(err.message || 'Invalid auto payment details.');
+                return;
+            }
 
             let categoryId = categoryValue;
             let categoryName = '';

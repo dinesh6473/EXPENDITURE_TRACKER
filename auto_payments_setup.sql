@@ -46,21 +46,51 @@ RETURNS void AS $$
 DECLARE
     payment RECORD;
     new_next_execution TIMESTAMP WITH TIME ZONE;
+    wallet_allowance NUMERIC;
+    total_spent NUMERIC;
+    total_savings NUMERIC;
+    available_balance NUMERIC;
+    execution_date DATE;
 BEGIN
     FOR payment IN 
         SELECT * FROM auto_payments 
         WHERE is_active = true AND next_execution_at <= now()
     LOOP
+        SELECT COALESCE(monthly_allowance, 0)
+        INTO wallet_allowance
+        FROM profiles
+        WHERE id = payment.user_id;
+
+        SELECT COALESCE(SUM(amount), 0)
+        INTO total_spent
+        FROM expenses
+        WHERE user_id = payment.user_id
+          AND expense_date >= date_trunc('month', payment.next_execution_at AT TIME ZONE 'Asia/Kolkata')::date
+          AND expense_date <= (date_trunc('month', payment.next_execution_at AT TIME ZONE 'Asia/Kolkata') + INTERVAL '1 month - 1 day')::date;
+
+        SELECT COALESCE(SUM(amount), 0)
+        INTO total_savings
+        FROM savings
+        WHERE user_id = payment.user_id;
+
+        available_balance := GREATEST(0, wallet_allowance - total_spent - total_savings);
+        execution_date := (payment.next_execution_at AT TIME ZONE 'Asia/Kolkata')::date;
+
+        IF available_balance < payment.amount THEN
+            RAISE NOTICE 'Skipping auto payment % for user % due to insufficient wallet balance.', payment.id, payment.user_id;
+        ELSE
         -- Insert expense
-        INSERT INTO expenses (user_id, amount, category_id, category_name, description, expense_date)
+        INSERT INTO expenses (user_id, amount, category_id, category_name, description, expense_date, created_at)
         VALUES (
             payment.user_id, 
             payment.amount, 
             payment.category_id, 
             payment.category_name, 
             COALESCE(payment.description, 'Auto Payment: ' || payment.category_name), 
-            CURRENT_DATE
+            execution_date,
+            payment.next_execution_at
         );
+        END IF;
 
         -- Calculate next execution time
         IF payment.frequency = 'Daily' THEN

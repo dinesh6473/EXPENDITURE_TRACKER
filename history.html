@@ -166,6 +166,17 @@
                             <label>Date</label>
                             <input type="date" id="drawerExpenseDate" class="form-control" required>
                         </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                                <select id="drawerExpenseHour" class="form-control" required></select>
+                                <select id="drawerExpenseMinute" class="form-control" required></select>
+                                <select id="drawerExpenseMeridiem" class="form-control" required>
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                </select>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="side-drawer-footer">
@@ -223,9 +234,42 @@
     <script src="js/api.js"></script>
     <script src="js/nav.js"></script>
     <script>
+        const drawerExpenseHour = document.getElementById('drawerExpenseHour');
+        const drawerExpenseMinute = document.getElementById('drawerExpenseMinute');
+        const drawerExpenseMeridiem = document.getElementById('drawerExpenseMeridiem');
+
+        function fillDrawerTimeOptions() {
+            if (drawerExpenseHour.options.length === 0) {
+                for (let hour = 1; hour <= 12; hour++) {
+                    const opt = document.createElement('option');
+                    opt.value = String(hour);
+                    opt.textContent = String(hour);
+                    drawerExpenseHour.appendChild(opt);
+                }
+            }
+
+            if (drawerExpenseMinute.options.length === 0) {
+                for (let minute = 0; minute < 60; minute++) {
+                    const value = String(minute).padStart(2, '0');
+                    const opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = value;
+                    drawerExpenseMinute.appendChild(opt);
+                }
+            }
+        }
+
+        function setDrawerExpenseTime(time24) {
+            const parts = to12HourParts(time24);
+            drawerExpenseHour.value = parts.hour;
+            drawerExpenseMinute.value = parts.minute;
+            drawerExpenseMeridiem.value = parts.meridiem;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const authed = await requireAuth();
             if (!authed) return;
+            fillDrawerTimeOptions();
             await loadTransactions();
         });
 
@@ -241,9 +285,8 @@
                 const normalizedExpenses = expenses.map(exp => ({
                     ...exp,
                     type: 'expense',
-                    // Use expense_date for the main display date, but created_at for sorting/time
                     displayDate: exp.expense_date,
-                    sortTime: new Date(exp.created_at || exp.expense_date).getTime()
+                    sortTime: getExpenseDateTime(exp)?.getTime() || 0
                 }));
 
                 // Normalize wallet transactions
@@ -273,6 +316,9 @@
             </td></tr>`;
                 } else {
                     tbody.innerHTML = allTransactions.map(item => {
+                        const displayTime = item.type === 'expense'
+                            ? formatExpenseTime(getExpenseDateTime(item))
+                            : formatExpenseTime(item.created_at);
                         const timeStr = item.created_at
                             ? new Date(item.created_at).toLocaleTimeString('en-IN', {
                                 hour: 'numeric',
@@ -287,7 +333,7 @@
                             return `
             <tr>
               <td>${new Date(item.displayDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-              <td style="color:var(--gray-500);font-size:0.9rem;">${timeStr}</td>
+              <td style="color:var(--gray-500);font-size:0.9rem;">${displayTime}</td>
               <td><span class="category-badge">${getCategoryIcon(item.category_name)} ${item.category_name}</span></td>
               <td>${item.description || '—'}</td>
               <td style="text-align:right;" class="amount-negative">-₹${parseFloat(item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
@@ -303,7 +349,7 @@
                             return `
             <tr style="background-color: var(--primary-lighter); opacity: 0.95;">
               <td>${new Date(item.displayDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-              <td style="color:var(--gray-600);font-size:0.9rem;font-weight:500;">${timeStr}</td>
+              <td style="color:var(--gray-600);font-size:0.9rem;font-weight:500;">${displayTime}</td>
               <td><span class="category-badge" style="background:var(--primary);color:white;">💳 Wallet Top-up</span></td>
               <td style="font-weight:500;">${item.description || 'Added to Wallet'}</td>
               <td style="text-align:right;color:var(--primary);font-weight:700;">+₹${parseFloat(item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
@@ -352,7 +398,8 @@
             drawerOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
             loadDrawerCategories();
-            document.getElementById('drawerExpenseDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('drawerExpenseDate').value = getCurrentIstDate();
+            setDrawerExpenseTime(getCurrentIstTime());
         }
 
         function closeDrawer() {
@@ -404,6 +451,22 @@
             const categoryValue = drawerCategorySelect.value;
             const description = document.getElementById('drawerDescription').value.trim();
             const expenseDate = document.getElementById('drawerExpenseDate').value;
+            let expenseTime = '';
+
+            try {
+                expenseTime = to24HourTime(
+                    drawerExpenseHour.value,
+                    drawerExpenseMinute.value,
+                    drawerExpenseMeridiem.value
+                );
+                validateExpenseDateTime(expenseDate, expenseTime);
+            } catch (err) {
+                if (isFutureTimeValidationError(err)) {
+                    alert(err.message);
+                }
+                showDrawerError(err.message);
+                return;
+            }
 
             if (!amount || !categoryValue || !expenseDate) {
                 showDrawerError('Please fill in all required fields.');
@@ -426,7 +489,7 @@
                     categoryName = drawerCategorySelect.options[drawerCategorySelect.selectedIndex].dataset.name;
                 }
 
-                await addExpense(amount, categoryId, categoryName, description, expenseDate);
+                await addExpense(amount, categoryId, categoryName, description, expenseDate, expenseTime);
                 showDrawerSuccess('Expense added successfully!');
 
                 // Refresh transaction list immediately
@@ -436,6 +499,8 @@
                 setTimeout(() => {
                     expenseForm.reset();
                     customCategoryGroup.style.display = 'none';
+                    document.getElementById('drawerExpenseDate').value = getCurrentIstDate();
+                    setDrawerExpenseTime(getCurrentIstTime());
                     addExpenseBtn.disabled = false;
                     addExpenseBtn.textContent = 'Add Another Expense';
                     // Keep success message for 3 seconds then hide
@@ -445,6 +510,9 @@
                 }, 800);
 
             } catch (err) {
+                if (isFutureTimeValidationError(err)) {
+                    alert(err.message);
+                }
                 showDrawerError(err.message || 'Failed to add expense.');
                 addExpenseBtn.disabled = false;
                 addExpenseBtn.textContent = 'Add Expense';

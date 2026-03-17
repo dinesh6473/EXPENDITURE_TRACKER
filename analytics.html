@@ -1104,7 +1104,8 @@
 
         function filterExpenses(expenses, start, end) {
             return expenses.filter(e => {
-                const d = new Date(e.expense_date);
+                const d = getExpenseDateTime(e);
+                if (!d) return false;
                 return d >= start && d <= end;
             });
         }
@@ -1135,7 +1136,8 @@
                 const hours = Array.from({ length: 24 }, (_, i) => i);
                 const buckets = Array(24).fill(0);
                 expenses.forEach(e => {
-                    const h = new Date(e.expense_date).getHours();
+                    const h = getExpenseDateTime(e)?.getHours();
+                    if (h === undefined) return;
                     buckets[h] += parseFloat(e.amount);
                 });
                 // Null out future hours for today
@@ -1144,13 +1146,17 @@
                         buckets[h] = null;
                     }
                 }
-                return { labels: hours.map(h => `${h}:00`), data: buckets };
+                return {
+                    labels: hours.map(h => formatExpenseTime(new Date(`2000-01-01T${String(h).padStart(2, '0')}:00:00+05:30`))),
+                    data: buckets
+                };
 
             } else if (period === 'week') {
                 const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                 const buckets = Array(7).fill(0);
                 expenses.forEach(e => {
-                    const d = new Date(e.expense_date);
+                    const d = getExpenseDateTime(e);
+                    if (!d) return;
                     const idx = (d.getDay() + 6) % 7; // Mon=0
                     buckets[idx] += parseFloat(e.amount);
                 });
@@ -1174,7 +1180,8 @@
                     buckets.push(0);
                 }
                 expenses.forEach(e => {
-                    const day = new Date(e.expense_date).getDate();
+                    const day = getExpenseDateTime(e)?.getDate();
+                    if (!day) return;
                     if (buckets[day - 1] !== undefined) buckets[day - 1] += parseFloat(e.amount);
                 });
                 // Null out future days if viewing current month
@@ -1194,7 +1201,8 @@
                 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                 const buckets = Array(12).fill(0);
                 expenses.forEach(e => {
-                    const m = new Date(e.expense_date).getMonth();
+                    const m = getExpenseDateTime(e)?.getMonth();
+                    if (m === undefined) return;
                     buckets[m] += parseFloat(e.amount);
                 });
                 // Null out future months if viewing current year
@@ -1523,7 +1531,10 @@
             const end = new Date(y, m - 1, d, 23, 59, 59, 999);
             const label = start.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
             // For day: buckets by hour (0-23)
-            const bucketLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+            const bucketLabels = Array.from(
+                { length: 24 },
+                (_, i) => formatExpenseTime(new Date(`2000-01-01T${String(i).padStart(2, '0')}:00:00+05:30`))
+            );
             const bucketCount = 24;
             return { start, end, label, bucketLabels, bucketCount, type: 'day' };
         }
@@ -1550,7 +1561,8 @@
         function buildCmpBuckets(expenses, range) {
             const buckets = Array(range.bucketCount).fill(0);
             expenses.forEach(e => {
-                const d = new Date(e.expense_date);
+                const d = getExpenseDateTime(e);
+                if (!d) return;
                 if (d < range.start || d > range.end) return;
                 let idx;
                 if (range.type === 'day') idx = d.getHours();

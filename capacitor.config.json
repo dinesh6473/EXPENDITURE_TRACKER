@@ -1,0 +1,9 @@
+{
+  "appId": "com.expenseiq.app",
+  "appName": "ExpenseIQ",
+  "webDir": "mobile-web",
+  "server": {
+    "androidScheme": "https",
+    "hostname": "app.expenseiq"
+  }
+}

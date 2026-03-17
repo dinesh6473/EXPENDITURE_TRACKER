@@ -171,6 +171,17 @@
                             <label>Date</label>
                             <input type="date" id="drawerExpenseDate" class="form-control" required>
                         </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                                <select id="drawerExpenseHour" class="form-control" required></select>
+                                <select id="drawerExpenseMinute" class="form-control" required></select>
+                                <select id="drawerExpenseMeridiem" class="form-control" required>
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                </select>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="side-drawer-footer">
@@ -349,7 +360,7 @@
                         <div class="stat-info">
                             <h4>Total Topped Up</h4>
                             <div class="stat-value" id="statAllowance">₹0</div>
-                            <div class="stat-label">Money loaded this month</div>
+                            <div class="stat-label">Money added to wallet</div>
                         </div>
                     </div>
                     <!-- Card 4: Savings -->
@@ -361,9 +372,9 @@
                                 <polyline points="9 22 9 12 15 12 15 22" />
                             </svg></div>
                         <div class="stat-info">
-                            <h4>Savings</h4>
+                            <h4>Net Savings</h4>
                             <div class="stat-value" id="statSavings">₹0</div>
-                            <div class="stat-label">Set aside this month</div>
+                            <div class="stat-label" id="statSavingsLabel">Net savings this month</div>
                         </div>
                     </div>
                 </div>
@@ -381,7 +392,7 @@
                         </div>
                         <div
                             style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--gray-400);margin-top:4px;">
-                            <span>₹0 spent</span>
+                            <span>₹0 used</span>
                             <span id="budgetTotal">of ₹0</span>
                         </div>
                     </div>
@@ -411,7 +422,7 @@
                         <div style="display:flex;flex-direction:column;gap:16px;">
                             <div
                                 style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--gray-100);">
-                                <span style="color:var(--gray-500);font-size:0.9rem;">Total Monthly Money</span>
+                                <span style="color:var(--gray-500);font-size:0.9rem;">Total Topped Up</span>
                                 <span style="font-weight:600;" id="summaryAllowance">₹0</span>
                             </div>
                             <div
@@ -421,7 +432,7 @@
                             </div>
                             <div
                                 style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--gray-100);">
-                                <span style="color:var(--gray-500);font-size:0.9rem;">Savings Set Aside</span>
+                                <span style="color:var(--gray-500);font-size:0.9rem;" id="summarySavingsLabel">Net Savings This Month</span>
                                 <span style="font-weight:600;color:var(--accent-dark);" id="summarySavings">-₹0</span>
                             </div>
                             <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
@@ -506,18 +517,32 @@
                 countUp(document.getElementById('statAllowance'), wallet.monthlyAllowance, '₹');
                 countUp(document.getElementById('statSpent'), wallet.totalSpent, '₹');
                 countUp(document.getElementById('statRemaining'), wallet.remaining, '₹');
-                countUp(document.getElementById('statSavings'), wallet.totalSavings, '₹');
+                countUpCurrencySigned(document.getElementById('statSavings'), wallet.monthlySavings);
+                document.getElementById('statSavingsLabel').textContent = wallet.monthlySavings < 0
+                    ? 'Taken back from savings this month'
+                    : 'Net savings this month';
 
                 // Budget progress — bar animates after brief delay
-                const spentAndSavedPercent = wallet.monthlyAllowance > 0
-                    ? Math.min(100, Math.round(((wallet.totalSpent + wallet.totalSavings) / wallet.monthlyAllowance) * 100))
-                    : 0;
+                const spentAndSavedPercent = wallet.usagePercent;
+                const spentAndSavedAmount = wallet.usageAmount;
                 const bar = document.getElementById('budgetProgressBar');
                 bar.style.width = '0%'; // reset
+                bar.classList.remove('green', 'yellow', 'red');
                 if (spentAndSavedPercent > 90) bar.classList.add('red');
                 else if (spentAndSavedPercent > 70) bar.classList.add('yellow');
                 else bar.classList.add('green');
+                document.getElementById('budgetTotal').previousElementSibling.textContent =
+                    'â‚¹' + wallet.totalSpent.toLocaleString('en-IN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }) + ' spent';
                 document.getElementById('budgetTotal').textContent = 'of ₹' + wallet.monthlyAllowance.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+                document.getElementById('budgetTotal').previousElementSibling.textContent =
+                    String.fromCharCode(8377) + spentAndSavedAmount.toLocaleString('en-IN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }) + ' used';
 
                 // Animate bar width + percent counter
                 document.getElementById('budgetPercent').textContent = '0%';
@@ -528,15 +553,16 @@
                 // Summary section — animated
                 countUp(document.getElementById('summaryAllowance'), wallet.monthlyAllowance, '₹', '');
                 countUp(document.getElementById('summarySpent'), wallet.totalSpent, '₹', '- ', true);
-                countUp(document.getElementById('summarySavings'), wallet.totalSavings, '₹', '- ', true);
+                countUpCurrencySigned(document.getElementById('summarySavings'), wallet.monthlySavings);
                 countUp(document.getElementById('summaryRemaining'), wallet.remaining, '₹');
+                document.getElementById('summarySavingsLabel').textContent = wallet.monthlySavings < 0
+                    ? 'Taken From Savings This Month'
+                    : 'Net Savings This Month';
 
-                const percentUsed = wallet.monthlyAllowance > 0
-                    ? Math.round((wallet.totalSpent / wallet.monthlyAllowance) * 100)
-                    : 0;
+                const percentUsed = wallet.usagePercent;
                 setTimeout(() => {
                     countUpBare(document.getElementById('summaryPercentUsed'), percentUsed, '%');
-                    countUpBare(document.getElementById('summaryPercentRemaining'), 100 - percentUsed, '%');
+                    countUpBare(document.getElementById('summaryPercentRemaining'), Math.max(0, 100 - percentUsed), '%');
                 }, 300);
 
                 // Category breakdown
@@ -622,6 +648,36 @@
             requestAnimationFrame(step);
         }
 
+        function countUpCurrencySigned(el, target, duration = 1200) {
+            if (!el) return;
+            const currentText = el.textContent.replace(/[^\d.-]/g, '');
+            const startVal = parseFloat(currentText) || 0;
+
+            const start = performance.now();
+            function step(now) {
+                const p = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                const current = startVal + ease * (target - startVal);
+                const isNegative = current < 0;
+                const formatted = Math.abs(current).toLocaleString('en-IN', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+
+                let finalHTML = '';
+                if (formatted.includes('.')) {
+                    const parts = formatted.split('.');
+                    finalHTML = `${isNegative ? '-' : ''}₹${parts[0]}<span class="decimal-small">.${parts[1]}</span>`;
+                } else {
+                    finalHTML = `${isNegative ? '-' : ''}₹${formatted}`;
+                }
+
+                el.innerHTML = finalHTML;
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
         function countUpBare(el, target, suffix = '', duration = 1200) {
             if (!el) return;
             const currentText = el.textContent.replace(/[^\d.-]/g, '');
@@ -632,7 +688,10 @@
                 const p = Math.min((now - start) / duration, 1);
                 const ease = 1 - Math.pow(1 - p, 3);
                 const current = startVal + ease * (target - startVal);
-                el.textContent = Math.round(current) + suffix;
+                el.textContent = current.toLocaleString('en-IN', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                }) + suffix;
                 if (p < 1) requestAnimationFrame(step);
             }
             requestAnimationFrame(step);
@@ -648,7 +707,10 @@
                 const p = Math.min((now - start) / duration, 1);
                 const ease = 1 - Math.pow(1 - p, 3);
                 const cur = startVal + ease * (target - startVal);
-                el.textContent = Math.round(cur) + '%';
+                el.textContent = cur.toLocaleString('en-IN', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                }) + '%';
                 if (barEl) barEl.style.width = cur + '%';
                 if (p < 1) requestAnimationFrame(step);
             }
@@ -665,13 +727,46 @@
         const addExpenseBtn = document.getElementById('addExpenseBtn');
         const drawerCategorySelect = document.getElementById('drawerCategory');
         const customCategoryGroup = document.getElementById('customCategoryGroup');
+        const drawerExpenseHour = document.getElementById('drawerExpenseHour');
+        const drawerExpenseMinute = document.getElementById('drawerExpenseMinute');
+        const drawerExpenseMeridiem = document.getElementById('drawerExpenseMeridiem');
+
+        function fillDrawerTimeOptions() {
+            if (drawerExpenseHour.options.length === 0) {
+                for (let hour = 1; hour <= 12; hour++) {
+                    const opt = document.createElement('option');
+                    opt.value = String(hour);
+                    opt.textContent = String(hour);
+                    drawerExpenseHour.appendChild(opt);
+                }
+            }
+
+            if (drawerExpenseMinute.options.length === 0) {
+                for (let minute = 0; minute < 60; minute++) {
+                    const value = String(minute).padStart(2, '0');
+                    const opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = value;
+                    drawerExpenseMinute.appendChild(opt);
+                }
+            }
+        }
+
+        function setDrawerExpenseTime(time24) {
+            const parts = to12HourParts(time24);
+            drawerExpenseHour.value = parts.hour;
+            drawerExpenseMinute.value = parts.minute;
+            drawerExpenseMeridiem.value = parts.meridiem;
+        }
 
         function openDrawer() {
             sideDrawer.classList.add('active');
             drawerOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
             loadDrawerCategories();
-            document.getElementById('drawerExpenseDate').value = new Date().toISOString().split('T')[0];
+            fillDrawerTimeOptions();
+            document.getElementById('drawerExpenseDate').value = getCurrentIstDate();
+            setDrawerExpenseTime(getCurrentIstTime());
         }
 
         function closeDrawer() {
@@ -727,6 +822,22 @@
             const categoryValue = drawerCategorySelect.value;
             const description = document.getElementById('drawerDescription').value.trim();
             const expenseDate = document.getElementById('drawerExpenseDate').value;
+            let expenseTime = '';
+
+            try {
+                expenseTime = to24HourTime(
+                    drawerExpenseHour.value,
+                    drawerExpenseMinute.value,
+                    drawerExpenseMeridiem.value
+                );
+                validateExpenseDateTime(expenseDate, expenseTime);
+            } catch (err) {
+                if (isFutureTimeValidationError(err)) {
+                    alert(err.message);
+                }
+                showDrawerError(err.message);
+                return;
+            }
 
             if (!amount || !categoryValue || !expenseDate) {
                 showDrawerError('Please fill in all required fields.');
@@ -749,7 +860,7 @@
                     categoryName = drawerCategorySelect.options[drawerCategorySelect.selectedIndex].dataset.name;
                 }
 
-                await addExpense(amount, categoryId, categoryName, description, expenseDate);
+                await addExpense(amount, categoryId, categoryName, description, expenseDate, expenseTime);
                 showDrawerSuccess('Expense added successfully!');
 
                 // Refresh dashboard stats immediately
@@ -759,6 +870,8 @@
                 setTimeout(() => {
                     expenseForm.reset();
                     customCategoryGroup.style.display = 'none';
+                    document.getElementById('drawerExpenseDate').value = getCurrentIstDate();
+                    setDrawerExpenseTime(getCurrentIstTime());
                     addExpenseBtn.disabled = false;
                     addExpenseBtn.textContent = 'Add Another Expense';
                     // Keep success message for 3 seconds then hide
@@ -768,6 +881,9 @@
                 }, 800);
 
             } catch (err) {
+                if (isFutureTimeValidationError(err)) {
+                    alert(err.message);
+                }
                 showDrawerError(err.message || 'Failed to add expense.');
                 addExpenseBtn.disabled = false;
                 addExpenseBtn.textContent = 'Add Expense';
@@ -881,6 +997,13 @@
             }
             if (frequency === 'Custom' && !customDays) {
                 showAutoPayError('Please specify custom days.');
+                return;
+            }
+
+            try {
+                validateAutoPaymentInput(amount, frequency, customDays, endDate);
+            } catch (err) {
+                showAutoPayError(err.message || 'Invalid auto payment details.');
                 return;
             }
 

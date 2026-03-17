@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+mobile-web/
 
 # Environment variables
 .env
@@ -16,3 +17,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Capacitor / Android build output
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties

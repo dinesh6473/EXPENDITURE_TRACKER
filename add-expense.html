@@ -128,6 +128,18 @@
                         <input type="date" id="expenseDate" class="form-control" required>
                     </div>
 
+                    <div class="form-group">
+                        <label for="expenseTime">Time</label>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                            <select id="expenseHour" class="form-control" required></select>
+                            <select id="expenseMinute" class="form-control" required></select>
+                            <select id="expenseMeridiem" class="form-control" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-full btn-lg" id="addExpenseBtn">
                         Add Expense
                     </button>
@@ -141,13 +153,47 @@
     <script src="js/api.js"></script>
     <script>
         let categoriesList = [];
+        const expenseHourSelect = document.getElementById('expenseHour');
+        const expenseMinuteSelect = document.getElementById('expenseMinute');
+        const expenseMeridiemSelect = document.getElementById('expenseMeridiem');
+
+        function fillTimeSelectOptions(hourSelect, minuteSelect) {
+            if (hourSelect.options.length === 0) {
+                for (let hour = 1; hour <= 12; hour++) {
+                    const opt = document.createElement('option');
+                    opt.value = String(hour);
+                    opt.textContent = String(hour);
+                    hourSelect.appendChild(opt);
+                }
+            }
+
+            if (minuteSelect.options.length === 0) {
+                for (let minute = 0; minute < 60; minute++) {
+                    const value = String(minute).padStart(2, '0');
+                    const opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = value;
+                    minuteSelect.appendChild(opt);
+                }
+            }
+        }
+
+        function setExpenseFormTime(time24) {
+            const parts = to12HourParts(time24);
+            expenseHourSelect.value = parts.hour;
+            expenseMinuteSelect.value = parts.minute;
+            expenseMeridiemSelect.value = parts.meridiem;
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             const authed = await requireAuth();
             if (!authed) return;
 
+            fillTimeSelectOptions(expenseHourSelect, expenseMinuteSelect);
+
             // Set default date to today
-            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('expenseDate').value = getCurrentIstDate();
+            setExpenseFormTime(getCurrentIstTime());
 
             // Load wallet balance
             try {
@@ -202,6 +248,22 @@
             const categoryValue = categorySelect.value;
             const description = document.getElementById('description').value.trim();
             const expenseDate = document.getElementById('expenseDate').value;
+            let expenseTime = '';
+
+            try {
+                expenseTime = to24HourTime(
+                    expenseHourSelect.value,
+                    expenseMinuteSelect.value,
+                    expenseMeridiemSelect.value
+                );
+                validateExpenseDateTime(expenseDate, expenseTime);
+            } catch (err) {
+                if (isFutureTimeValidationError(err)) {
+                    alert(err.message);
+                }
+                showError(err.message);
+                return;
+            }
 
             if (!amount || !categoryValue || !expenseDate) {
                 showError('Please fill in all required fields.');
@@ -241,10 +303,11 @@
             addExpenseBtn.innerHTML = '<div class="spinner"></div> Adding...';
 
             try {
-                await addExpense(amount, categoryId, categoryName, description, expenseDate);
+                await addExpense(amount, categoryId, categoryName, description, expenseDate, expenseTime);
                 showSuccess('Expense added successfully! Your wallet has been updated.');
                 expenseForm.reset();
-                document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('expenseDate').value = getCurrentIstDate();
+                setExpenseFormTime(getCurrentIstTime());
                 document.getElementById('customCategoryGroup').style.display = 'none';
 
                 // Update balance
@@ -253,6 +316,9 @@
                     document.getElementById('currentBalance').textContent = '₹' + wallet.remaining.toLocaleString('en-IN', { minimumFractionDigits: 2 });
                 }
             } catch (err) {
+                if (isFutureTimeValidationError(err)) {
+                    alert(err.message);
+                }
                 showError(err.message || 'Failed to add expense. Please try again.');
             }
 
