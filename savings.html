@@ -364,11 +364,13 @@
 
         async function loadSavingsPage() {
             try {
-                const [wallet, savings] = await Promise.all([
-                    getWalletSummary(),
-                    getSavings()
+                const [profile, monthlyExp, savings] = await Promise.all([
+                    getUserProfile().catch(() => null),
+                    getMonthlyExpenses().catch(() => []),
+                    getSavings().catch(() => [])
                 ]);
 
+                const wallet = await getWalletSummary(profile, monthlyExp, savings);
                 walletData = wallet;
 
                 // Compute stats from savings history

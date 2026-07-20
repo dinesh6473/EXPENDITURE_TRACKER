@@ -430,13 +430,13 @@ async function getWalletTransactions() {
 
 // ---- WALLET SUMMARY ----
 
-async function getWalletSummary() {
-    const profile = await getUserProfile();
+async function getWalletSummary(profileInput = null, expensesInput = null, savingsInput = null) {
+    const profile = profileInput || await getUserProfile();
     if (!profile) return null;
 
     const [expenses, savings] = await Promise.all([
-        getMonthlyExpenses(),
-        getSavings()
+        expensesInput || getMonthlyExpenses(),
+        savingsInput || getSavings()
     ]);
 
     const totalSpent = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);

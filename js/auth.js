@@ -10,21 +10,35 @@ function assertNonNegativeProfileAmount(amount, fieldLabel = 'Amount') {
     return parsedAmount;
 }
 
+let _cachedUser = null;
+let _cachedProfile = null;
+
 // Check if user is logged in
 async function getUser() {
+    if (_cachedUser) return _cachedUser;
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session?.user) {
+        _cachedUser = session.user;
+        return _cachedUser;
+    }
     const { data: { user } } = await _supabase.auth.getUser();
-    return user;
+    _cachedUser = user || null;
+    return _cachedUser;
 }
 
 // Check session
 async function getSession() {
     const { data: { session } } = await _supabase.auth.getSession();
+    if (session?.user) {
+        _cachedUser = session.user;
+    }
     return session;
 }
 
 // Sign Up
 async function signUp(email, password, name, monthlyAllowance, age, gender, currentlyPursuing, pursuingDetail) {
-    // Create auth user — profile is auto-created via database trigger
+    _cachedUser = null;
+    _cachedProfile = null;
     assertNonNegativeProfileAmount(monthlyAllowance, 'Wallet amount');
     const { data, error } = await _supabase.auth.signUp({
         email,
@@ -42,11 +56,14 @@ async function signUp(email, password, name, monthlyAllowance, age, gender, curr
     });
 
     if (error) throw error;
+    _cachedProfile = data;
     return data;
 }
 
 // Login
 async function login(email, password) {
+    _cachedUser = null;
+    _cachedProfile = null;
     const { data, error } = await _supabase.auth.signInWithPassword({
         email,
         password
@@ -57,6 +74,8 @@ async function login(email, password) {
 
 // Google Sign In
 async function signInWithGoogle() {
+    _cachedUser = null;
+    _cachedProfile = null;
     const { data, error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -69,13 +88,16 @@ async function signInWithGoogle() {
 
 // Logout
 async function logout() {
+    _cachedUser = null;
+    _cachedProfile = null;
     const { error } = await _supabase.auth.signOut();
     if (error) throw error;
     window.location.href = 'index.html';
 }
 
 // Get user profile from profiles table
-async function getUserProfile() {
+async function getUserProfile(forceRefresh = false) {
+    if (!forceRefresh && _cachedProfile) return _cachedProfile;
     const user = await getUser();
     if (!user) return null;
 
@@ -86,6 +108,7 @@ async function getUserProfile() {
         .single();
 
     if (error) throw error;
+    _cachedProfile = data;
     return data;
 }
 

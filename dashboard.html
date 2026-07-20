@@ -469,13 +469,20 @@
     <script>
         async function loadDashboardData() {
             try {
-                // Load all data in parallel
-                const [profile, wallet, recentExpenses, categoryData] = await Promise.all([
-                    getUserProfile(),
-                    getWalletSummary(),
-                    getExpenses(5),
-                    getExpensesByCategory()
+                // Load profile, monthly expenses, and savings in ONE single parallel batch
+                const [profile, monthlyExp, recentExpenses, savingsData] = await Promise.all([
+                    getUserProfile().catch(() => null),
+                    getMonthlyExpenses().catch(() => []),
+                    getExpenses(5).catch(() => []),
+                    getSavings().catch(() => [])
                 ]);
+
+                // Derive wallet summary and category breakdown in-memory instantly (0ms extra network time)
+                const wallet = await getWalletSummary(profile, monthlyExp, savingsData);
+                const categoryData = {};
+                (monthlyExp || []).forEach(e => {
+                    categoryData[e.category_name] = (categoryData[e.category_name] || 0) + parseFloat(e.amount);
+                });
 
                 if (!profile || !wallet) {
                     document.getElementById('pageLoader').innerHTML = '<p style="color:var(--danger);text-align:center;">Profile not found. Please contact support or <a href="profile.html" style="color:var(--primary);">set up your profile</a>.</p>';
