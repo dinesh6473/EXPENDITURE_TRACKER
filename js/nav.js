@@ -26,7 +26,7 @@ async function initNavigation() {
         appNav.classList.remove('expanded');
         pageContent.classList.remove('sidebar-open');
         if (overlay) overlay.classList.remove('show');
-        if (topBar) topBar.style.left = '68px';
+        if (topBar) topBar.style.left = window.innerWidth <= 600 ? '56px' : '68px';
     }
 
     hamburgerBtn.addEventListener('click', () => {

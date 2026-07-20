@@ -440,6 +440,18 @@
             document.getElementById('profileSuccess').classList.remove('show');
         }
     </script>
+
+    <script>
+        // Universal fail-safe: Hide page loader after 2.5s max
+        setTimeout(() => {
+            const pl = document.getElementById('pageLoader');
+            if (pl && getComputedStyle(pl).display !== 'none') {
+                pl.style.display = 'none';
+                const main = document.getElementById('profileContent');
+                if (main) main.style.display = 'block';
+            }
+        }, 2500);
+    </script>
 </body>
 
 </html>

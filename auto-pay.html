@@ -283,7 +283,7 @@
 
         async function loadAutoPayments() {
             try {
-                const schedules = await getAutoPayments();
+                const schedules = await getAutoPayments().catch(() => []);
                 const tbody = document.getElementById('scheduleList');
                 const countText = document.getElementById('scheduleCount');
                 const statCount = document.getElementById('statActiveCount');
@@ -520,6 +520,18 @@
             document.getElementById('autoPayDrawerError').style.display = 'none';
             document.getElementById('autoPayDrawerSuccess').style.display = 'none';
         }
+    </script>
+
+    <script>
+        // Universal fail-safe: Hide page loader after 2.5s max
+        setTimeout(() => {
+            const pl = document.getElementById('pageLoader');
+            if (pl && getComputedStyle(pl).display !== 'none') {
+                pl.style.display = 'none';
+                const main = document.getElementById('autoPayContent');
+                if (main) main.style.display = 'block';
+            }
+        }, 2500);
     </script>
 </body>
 

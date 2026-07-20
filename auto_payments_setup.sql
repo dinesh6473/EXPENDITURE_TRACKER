@@ -20,6 +20,9 @@ CREATE TABLE IF NOT EXISTS auto_payments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 1.5 Add relation to expenses table
+ALTER TABLE expenses ADD COLUMN IF NOT EXISTS auto_payment_id UUID REFERENCES auto_payments(id) ON DELETE SET NULL;
+
 -- 2. Enable Row Level Security
 ALTER TABLE auto_payments ENABLE ROW LEVEL SECURITY;
 
@@ -80,7 +83,7 @@ BEGIN
             RAISE NOTICE 'Skipping auto payment % for user % due to insufficient wallet balance.', payment.id, payment.user_id;
         ELSE
         -- Insert expense
-        INSERT INTO expenses (user_id, amount, category_id, category_name, description, expense_date, created_at)
+        INSERT INTO expenses (user_id, amount, category_id, category_name, description, expense_date, created_at, auto_payment_id)
         VALUES (
             payment.user_id, 
             payment.amount, 
@@ -88,7 +91,8 @@ BEGIN
             payment.category_name, 
             COALESCE(payment.description, 'Auto Payment: ' || payment.category_name), 
             execution_date,
-            payment.next_execution_at
+            payment.next_execution_at,
+            payment.id
         );
         END IF;
 

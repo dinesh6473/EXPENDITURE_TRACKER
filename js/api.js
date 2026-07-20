@@ -566,7 +566,7 @@ async function getAutoPayments() {
 
     const { data, error } = await _supabase
         .from('auto_payments')
-        .select('*')
+        .select('*, expenses(amount)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
