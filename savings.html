@@ -123,13 +123,13 @@
             <div id="savingsContent" style="display:none;">
 
                 <!-- ── Hero Banner ─────────────────────────────────── -->
-                <div
+                <div class="savings-hero"
                     style="background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);border-radius:20px;padding:32px 28px;color:#ffffff;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
                     <div>
                         <p
                             style="font-size:0.88rem;font-weight:600;color:#ffffff;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">
                             Total Savings</p>
-                        <div style="font-size:2.8rem;font-weight:800;letter-spacing:-0.04em;line-height:1;color:#ffffff;"
+                        <div class="savings-hero-amount" style="font-size:2.8rem;font-weight:800;letter-spacing:-0.04em;line-height:1;color:#ffffff;"
                             id="totalSavings">₹0</div>
                         <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
                             <div id="savingsPercentBadge"
@@ -147,7 +147,7 @@
                                 reach your goals!</p>
                         </div>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none"
+                    <svg class="savings-hero-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none"
                         stroke="rgba(255,255,255,0.3)" stroke-width="1.2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <path
@@ -158,41 +158,41 @@
                 </div>
 
                 <!-- ── Stat Mini-Cards Row ──────────────────────────── -->
-                <div class="stats-grid"
+                <div class="stats-grid savings-stats-grid"
                     style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px;">
-                    <div class="stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
+                    <div class="stat-card savings-stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
                         <p
                             style="font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin:0;">
                             Total Topped Up</p>
-                        <p style="font-size:1.35rem;font-weight:800;color:var(--gray-800);margin:0;" id="wAllowance">₹0
+                        <p class="savings-stat-value" style="font-size:1.35rem;font-weight:800;color:var(--gray-800);margin:0;" id="wAllowance">₹0
                         </p>
                     </div>
-                    <div class="stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
+                    <div class="stat-card savings-stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
                         <p
                             style="font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin:0;">
                             Total Spent</p>
-                        <p style="font-size:1.35rem;font-weight:800;color:var(--danger);margin:0;" id="wSpent">₹0</p>
+                        <p class="savings-stat-value" style="font-size:1.35rem;font-weight:800;color:var(--danger);margin:0;" id="wSpent">₹0</p>
                     </div>
-                    <div class="stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
+                    <div class="stat-card savings-stat-card" style="padding:18px 20px;flex-direction:column;gap:8px;">
                         <p
                             style="font-size:0.78rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin:0;">
                             Saved</p>
-                        <p style="font-size:1.35rem;font-weight:800;color:#7C3AED;margin:0;" id="wSavings">₹0</p>
+                        <p class="savings-stat-value" style="font-size:1.35rem;font-weight:800;color:#7C3AED;margin:0;" id="wSavings">₹0</p>
                     </div>
-                    <div class="stat-card"
+                    <div class="stat-card savings-stat-card"
                         style="padding:18px 20px;flex-direction:column;gap:8px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#a7f3d0;">
                         <p
                             style="font-size:0.78rem;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.06em;margin:0;">
                             Wallet</p>
-                        <p style="font-size:1.35rem;font-weight:800;color:#059669;margin:0;" id="wRemaining">₹0</p>
+                        <p class="savings-stat-value" style="font-size:1.35rem;font-weight:800;color:#059669;margin:0;" id="wRemaining">₹0</p>
                     </div>
                 </div>
 
                 <!-- ── Two Action Cards Side by Side ───────────────── -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+                <div class="savings-action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
 
                     <!-- Transfer to Savings -->
-                    <div class="card card-elevated" style="padding:24px;">
+                    <div class="card card-elevated savings-action-card" style="padding:24px;">
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
                             <div
                                 style="width:36px;height:36px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;">
@@ -254,7 +254,7 @@
                     </div>
 
                     <!-- Withdraw to Wallet -->
-                    <div class="card card-elevated" style="padding:24px;">
+                    <div class="card card-elevated savings-action-card" style="padding:24px;">
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
                             <div
                                 style="width:36px;height:36px;border-radius:10px;background:#d1fae5;display:flex;align-items:center;justify-content:center;">
@@ -297,7 +297,7 @@
                             <input type="number" id="withdrawAmount" class="form-control" placeholder="e.g. 200" min="1"
                                 step="0.01">
                         </div>
-                        <div style="height:62px;"></div><!-- spacer to align button with form above -->
+                        <div class="savings-action-spacer" style="height:62px;"></div><!-- spacer to align button with form above -->
                         <button class="btn btn-full" id="withdrawToWalletBtn"
                             style="background:#059669;color:white;border:none;padding:12px;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
@@ -314,7 +314,7 @@
                 </div>
 
                 <!-- ── Savings History ──────────────────────────────── -->
-                <div class="card card-elevated" style="padding:0;overflow:hidden;">
+                <div class="table-container savings-table-card">
                     <div
                         style="padding:20px 24px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:10px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"

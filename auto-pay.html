@@ -218,8 +218,8 @@
             <!-- Main Content -->
             <div id="autoPayContent" style="display:none;">
                 <!-- Summary Stats -->
-                <div class="stats-grid" style="margin-bottom: 28px;">
-                    <div class="stat-card">
+                <div class="stats-grid autopay-stats-grid" style="margin-bottom: 28px;">
+                    <div class="stat-card autopay-stat-card">
                         <div class="stat-icon blue"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -228,11 +228,11 @@
                             </svg></div>
                         <div class="stat-info">
                             <h4>Active Schedules</h4>
-                            <div class="stat-value" id="statActiveCount">0</div>
+                            <div class="stat-value autopay-stat-value" id="statActiveCount">0</div>
                             <div class="stat-label">Recurring payments</div>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card autopay-stat-card">
                         <div class="stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -240,17 +240,17 @@
                             </svg></div>
                         <div class="stat-info">
                             <h4>Monthly Auto-out</h4>
-                            <div class="stat-value" id="statMonthlyAmount">₹0</div>
+                            <div class="stat-value autopay-stat-value" id="statMonthlyAmount">₹0</div>
                             <div class="stat-label">Estimated monthly cost</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="table-container">
+                <div class="table-container autopay-table-card">
                     <div class="table-header">
                         <h3 id="scheduleCount">0 Schedules</h3>
                     </div>
-                    <table>
+                    <table class="autopay-table">
                         <thead>
                             <tr>
                                 <th>Category</th>
